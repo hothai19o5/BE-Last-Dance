@@ -33,21 +33,19 @@ management:
 logging:
   level:
     org.springframework: INFO
-    com.farukgenc.boilerplate.springboot: INFO
-
-## FIXME : Customize JWT token and Swagger information for your application
+    com.hoxuanthai.be.lastdance: INFO
 
 jwt:
   secretKey: secret
-  issuer: www.farukgenc.com
+  issuer: www.hoxuanthai.id.vn
   expirationMinute: 10
 
 swagger:
-  contact-name: Faruk Genc
-  contact-mail: omer@farukgenc.com
-  contact-url: https://farukgenc.com
-  app-name: Spring Boot Boilerplate Project
-  app-description: "Spring Boot Boilerplate is a starter kit. This project includes : Spring Boot(3.5.7), Spring Data JPA, Spring Validation, Spring Security + JWT Token, PostgreSQL, Mapstruct, Lombok, Swagger (Open API)"
-  app-version: 3.5.7
+  contact-name: Ho Xuan Thai
+  contact-mail: thai.hx04@gmail.com
+  contact-url: https://hoxuanthai.id.vn
+  app-name: BE Last Dance
+  app-description: "BE Last Dance. This project includes : Spring Boot(3.5.7), Spring Data JPA, Spring Validation, Spring Security + JWT Token, PostgreSQL, Mapstruct, Lombok, Swagger (Open API)"
+  app-version: 0.0.1
   app-license-url: https://www.apache.org/licenses/LICENSE-2.0.html
   app-license: Apache 2.0
