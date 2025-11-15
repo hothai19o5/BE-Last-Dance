@@ -4,9 +4,9 @@ server:
 
 spring:
   datasource:
-    url: jdbc:postgresql://${POSTGRES_DB_SERVER_ADDRESS:localhost}:${POSTGRES_DB_SERVER_PORT:5432}/
-    username: ${POSTGRES_USER:postgres}
-    password: ${POSTGRES_PASSWORD:example}
+    url: jdbc:postgresql://${POSTGRES_DB_SERVER_ADDRESS:localhost}:${POSTGRES_DB_SERVER_PORT:5432}/last_dance
+    username: ${POSTGRES_USER:na}
+    password: ${POSTGRES_PASSWORD:iTelecom@123}
     hikari:
       pool-name: SpringBootBoilerplateHikariPool
   jpa:
