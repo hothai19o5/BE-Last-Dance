@@ -15,7 +15,7 @@ jobs:
       - name: Set up JDK 24
         uses: actions/setup-java@v4
         with:
-          java-version: '24'
+          java-version: '21'
           distribution: 'temurin'     # Chọn bản phân phối Temurin của JDK
           cache: maven                # Kích hoạt cache cho Maven dependencies, giúp tăng tốc build
 
