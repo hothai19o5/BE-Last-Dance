@@ -43,7 +43,10 @@ public class DeviceServiceImpl implements DeviceService {
     @Override
     @Transactional
     public DeviceDto registerDevice(DeviceDto deviceDto) {
-        User user = userRepository.findById(deviceDto.getId()).orElseThrow(() -> new RuntimeException("User not found"));
+        User user = userRepository.findByUsername(deviceDto.getUsername());
+        if (user == null) {
+            throw new RuntimeException("User not found");
+        }
         Device device = deviceMapper.toEntity(deviceDto);
         device.setUser(user);
         return deviceMapper.toDto(deviceRepository.save(device));

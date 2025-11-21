@@ -1,6 +1,9 @@
 server:
   http2:
     enabled: true
+  port: 8080
+  servlet:
+    context-path: /api/v1
 
 spring:
   datasource:
@@ -9,9 +12,10 @@ spring:
     password: ${POSTGRES_PASSWORD:iTelecom@123}
     hikari:
       pool-name: SpringBootBoilerplateHikariPool
+      maximum-pool-size: 5
   jpa:
     hibernate:
-      ddl-auto: create
+      ddl-auto: update
     open-in-view: false
   jta:
     enabled: false
@@ -36,7 +40,7 @@ logging:
     com.hoxuanthai.be.lastdance: INFO
 
 jwt:
-  secretKey: secret
+  secretKey: ${JWT_SECRET_KEY:secret}
   issuer: www.hoxuanthai.id.vn
   expirationMinute: 10
 

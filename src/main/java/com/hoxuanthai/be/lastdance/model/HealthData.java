@@ -33,7 +33,4 @@ public class HealthData {
 
     @Column(name="spo2_percent")
     private Double spo2Percent;
-
-    @Enumerated(EnumType.STRING)
-    private DataType dataType;
 }

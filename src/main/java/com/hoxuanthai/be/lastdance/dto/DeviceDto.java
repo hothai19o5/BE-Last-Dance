@@ -23,7 +23,9 @@ public class DeviceDto {
     private String deviceName;
     private LocalDateTime lastSyncAt;
     private boolean isActive;
-    @NotNull
     private Long userId;
+    @NotNull
+    @NotBlank
+    private String username;
     private LocalDateTime createdAt;
 }

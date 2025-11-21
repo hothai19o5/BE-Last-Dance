@@ -13,6 +13,7 @@ import org.mapstruct.*;
 public interface DeviceMapper {
 
     @Mapping(target="userId", source="user.id")
+    @Mapping(target = "username", source = "user.username")
     DeviceDto toDto(Device device);
 
     @BeanMapping(nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)

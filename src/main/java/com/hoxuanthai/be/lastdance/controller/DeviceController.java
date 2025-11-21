@@ -30,7 +30,7 @@ public class DeviceController {
         return ResponseEntity.ok(result);
     }
 
-    @PostMapping("/devices")
+    @PostMapping("/device")
     @PreAuthorize("hasRole('USER')")
     @Operation(tags = "Device Service", description = "Register a new device to the system.")
     ResponseEntity<DeviceDto> registerDevice(@RequestBody @Valid DeviceDto deviceDto) {
