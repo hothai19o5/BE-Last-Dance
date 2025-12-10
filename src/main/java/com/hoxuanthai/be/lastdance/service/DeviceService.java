@@ -12,7 +12,7 @@ public interface DeviceService {
 
     DeviceDto updateDevice(DeviceDto deviceDto);
 
-    List<DeviceDto> getAllDevices(Long userId);
+    List<DeviceDto> getAllDevicesByUserId(Long userId);
 
     boolean syncHealthData(HealthDataDto healthDataDto);
 

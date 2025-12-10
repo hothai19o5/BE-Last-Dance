@@ -79,8 +79,7 @@ public class DeviceServiceImpl implements DeviceService {
      * @throws RuntimeException nếu không tìm thấy người dùng với ID được cung cấp.
      */
     @Override
-    public List<DeviceDto> getAllDevices(Long userId) {
-        User user = userRepository.findById(userId).orElseThrow(() -> new RuntimeException("User not found"));
+    public List<DeviceDto> getAllDevicesByUserId(Long userId) {
         List<Device> devices = deviceRepository.findAllByUserId(userId);
         return devices.stream().map(deviceMapper::toDto).toList();
     }

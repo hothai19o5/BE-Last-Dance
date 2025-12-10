@@ -26,7 +26,7 @@ public class DeviceController {
         if (userId == null || userId <= 0) {
             return ResponseEntity.badRequest().build();
         }
-        List<DeviceDto> result = deviceService.getAllDevices(userId);
+        List<DeviceDto> result = deviceService.getAllDevicesByUserId(userId);
         return ResponseEntity.ok(result);
     }
 

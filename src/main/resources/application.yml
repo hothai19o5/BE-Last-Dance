@@ -36,13 +36,13 @@ management:
 
 logging:
   level:
-    org.springframework: INFO
-    com.hoxuanthai.be.lastdance: INFO
+    "[org.springframework]": INFO
+    "[com.hoxuanthai.be.lastdance]": INFO
 
 jwt:
   secretKey: ${JWT_SECRET_KEY:secret}
   issuer: www.hoxuanthai.id.vn
-  expirationMinute: 10
+  expirationMinute: 20160 # 14 days
 
 swagger:
   contact-name: Ho Xuan Thai

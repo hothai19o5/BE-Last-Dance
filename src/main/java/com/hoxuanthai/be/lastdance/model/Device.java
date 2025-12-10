@@ -29,9 +29,10 @@ public class Device {
     private LocalDateTime lastSyncAt;
 
     @Column(name="is_active", nullable = false)
+    @Builder.Default
     private boolean isActive = true;
 
-    @ManyToOne(fetch = FetchType.LAZY, optional = false)
+    @ManyToOne(fetch = FetchType.EAGER, optional = false)
     @JoinColumn(name = "user_id", nullable = false)
     private User user;
 

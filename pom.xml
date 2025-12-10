@@ -11,7 +11,6 @@
 
     <groupId>com.hoxuanthai</groupId>
     <artifactId>be-last-dance</artifactId>
-    <version>3.5.7</version>
 
     <name>BE Last Dance</name>
     <description>
@@ -96,12 +95,14 @@
             <groupId>org.projectlombok</groupId>
             <artifactId>lombok</artifactId>
             <scope>provided</scope>
+            <optional>true</optional>
         </dependency>
 
         <dependency>
             <groupId>org.projectlombok</groupId>
             <artifactId>lombok-mapstruct-binding</artifactId>
             <version>${lombok-mapstruct-binding.version}</version>
+            <scope>provided</scope>
         </dependency>
 
         <dependency>
