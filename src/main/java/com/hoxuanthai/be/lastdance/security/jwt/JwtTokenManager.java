@@ -4,8 +4,8 @@ import com.auth0.jwt.JWT;
 import com.auth0.jwt.JWTVerifier;
 import com.auth0.jwt.algorithms.Algorithm;
 import com.auth0.jwt.interfaces.DecodedJWT;
-import com.hoxuanthai.be.lastdance.model.User;
-import com.hoxuanthai.be.lastdance.model.UserRole;
+import com.hoxuanthai.be.lastdance.entity.User;
+import com.hoxuanthai.be.lastdance.entity.UserRole;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 

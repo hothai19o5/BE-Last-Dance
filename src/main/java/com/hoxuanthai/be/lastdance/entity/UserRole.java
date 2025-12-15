@@ -1,4 +1,4 @@
-package com.hoxuanthai.be.lastdance.model;
+package com.hoxuanthai.be.lastdance.entity;
 
 /**
  * Created on November 2025

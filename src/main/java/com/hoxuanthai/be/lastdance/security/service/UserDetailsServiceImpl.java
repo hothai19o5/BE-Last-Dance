@@ -1,6 +1,6 @@
 package com.hoxuanthai.be.lastdance.security.service;
 
-import com.hoxuanthai.be.lastdance.model.UserRole;
+import com.hoxuanthai.be.lastdance.entity.UserRole;
 import com.hoxuanthai.be.lastdance.security.dto.AuthenticatedUserDto;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;

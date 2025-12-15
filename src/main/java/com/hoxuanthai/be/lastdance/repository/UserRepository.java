@@ -1,6 +1,6 @@
 package com.hoxuanthai.be.lastdance.repository;
 
-import com.hoxuanthai.be.lastdance.model.User;
+import com.hoxuanthai.be.lastdance.entity.User;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 /**

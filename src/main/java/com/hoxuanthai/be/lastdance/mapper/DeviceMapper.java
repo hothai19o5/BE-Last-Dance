@@ -1,7 +1,7 @@
 package com.hoxuanthai.be.lastdance.mapper;
 
 import com.hoxuanthai.be.lastdance.dto.DeviceDto;
-import com.hoxuanthai.be.lastdance.model.Device;
+import com.hoxuanthai.be.lastdance.entity.Device;
 import org.mapstruct.*;
 
 /**

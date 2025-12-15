@@ -2,7 +2,7 @@ package com.hoxuanthai.be.lastdance.security.jwt;
 
 import com.hoxuanthai.be.lastdance.security.mapper.UserMapper;
 import com.hoxuanthai.be.lastdance.security.service.UserService;
-import com.hoxuanthai.be.lastdance.model.User;
+import com.hoxuanthai.be.lastdance.entity.User;
 import com.hoxuanthai.be.lastdance.security.dto.AuthenticatedUserDto;
 import com.hoxuanthai.be.lastdance.security.dto.LoginRequest;
 import com.hoxuanthai.be.lastdance.security.dto.LoginResponse;

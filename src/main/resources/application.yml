@@ -7,8 +7,8 @@ server:
 
 spring:
   datasource:
-    url: jdbc:postgresql://${POSTGRES_DB_SERVER_ADDRESS:localhost}:${POSTGRES_DB_SERVER_PORT:5432}/last_dance
-    username: ${POSTGRES_USER:na}
+    url: jdbc:postgresql://${POSTGRES_DB_SERVER_ADDRESS:localhost}:${POSTGRES_DB_SERVER_PORT:5432}/lastdance_db
+    username: ${POSTGRES_USER:web_user}
     password: ${POSTGRES_PASSWORD:iTelecom@123}
     hikari:
       pool-name: SpringBootBoilerplateHikariPool
@@ -17,6 +17,7 @@ spring:
     hibernate:
       ddl-auto: update
     open-in-view: false
+    database-platform: org.hibernate.dialect.PostgreSQLDialect
   jta:
     enabled: false
 

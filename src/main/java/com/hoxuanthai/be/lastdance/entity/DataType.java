@@ -1,4 +1,4 @@
-package com.hoxuanthai.be.lastdance.model;
+package com.hoxuanthai.be.lastdance.entity;
 
 public enum DataType {
     HEART_RATE,

@@ -1,4 +1,4 @@
-package com.hoxuanthai.be.lastdance.model;
+package com.hoxuanthai.be.lastdance.entity;
 
 import jakarta.persistence.*;
 import lombok.*;

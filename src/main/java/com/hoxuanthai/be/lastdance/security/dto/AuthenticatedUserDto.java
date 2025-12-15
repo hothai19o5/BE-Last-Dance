@@ -1,6 +1,6 @@
 package com.hoxuanthai.be.lastdance.security.dto;
 
-import com.hoxuanthai.be.lastdance.model.UserRole;
+import com.hoxuanthai.be.lastdance.entity.UserRole;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;

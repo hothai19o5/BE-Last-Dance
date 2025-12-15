@@ -1,6 +1,6 @@
 package com.hoxuanthai.be.lastdance.security.mapper;
 
-import com.hoxuanthai.be.lastdance.model.User;
+import com.hoxuanthai.be.lastdance.entity.User;
 import com.hoxuanthai.be.lastdance.security.dto.AuthenticatedUserDto;
 import com.hoxuanthai.be.lastdance.security.dto.RegistrationRequest;
 import org.mapstruct.Mapper;

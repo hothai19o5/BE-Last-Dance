@@ -1,6 +1,6 @@
 package com.hoxuanthai.be.lastdance.security.service;
 
-import com.hoxuanthai.be.lastdance.model.User;
+import com.hoxuanthai.be.lastdance.entity.User;
 import com.hoxuanthai.be.lastdance.security.dto.AuthenticatedUserDto;
 import com.hoxuanthai.be.lastdance.security.dto.RegistrationRequest;
 import com.hoxuanthai.be.lastdance.security.dto.RegistrationResponse;

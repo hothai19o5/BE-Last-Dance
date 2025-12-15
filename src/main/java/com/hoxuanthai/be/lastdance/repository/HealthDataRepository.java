@@ -1,7 +1,7 @@
 package com.hoxuanthai.be.lastdance.repository;
 
-import com.hoxuanthai.be.lastdance.model.Device;
-import com.hoxuanthai.be.lastdance.model.HealthData;
+import com.hoxuanthai.be.lastdance.entity.Device;
+import com.hoxuanthai.be.lastdance.entity.HealthData;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.time.LocalDateTime;
