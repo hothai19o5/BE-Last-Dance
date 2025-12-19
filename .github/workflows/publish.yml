@@ -27,21 +27,35 @@ jobs:
         run: mvn clean package -DskipTests
         # Hoặc dùng gradle: ./gradlew clean build -x test
 
-      # 6. Thiết lập SSH Environment
-      - name: Deploy to Droplet via SSH
+      # 4. Copy file từ GitHub Runner -> Server
+      - name: Copy JAR to Droplet
+        uses: appleboy/scp-action@v0.1.7
+        with:
+          host: ${{ secrets.DROPLET_IP }}
+          username: ${{ secrets.DEPLOY_USER }}
+          key: ${{ secrets.SSH_PRIVATE_KEY }}
+          source: "target/*.jar"          # Lấy file trong thư mục target ở GitHub Runner
+          target: "/opt/lastdance/backend/" # Đẩy vào thư mục này ở Server
+          strip_components: 1             # Quan trọng: Bỏ thư mục cha 'target', chỉ lấy file .jar
+
+      # 5. Connect SSH vào Server để đổi tên file và Restart
+      - name: Restart Service via SSH
         uses: appleboy/ssh-action@v1.0.3
         with:
           host: ${{ secrets.DROPLET_IP }}
           username: ${{ secrets.DEPLOY_USER }}
           key: ${{ secrets.SSH_PRIVATE_KEY }}
           script: |
-            # A. Deployment Backend
-            echo "Deploying Backend..."
-            scp ./target/*.jar ${{ secrets.DEPLOY_USER }}@${{ secrets.DROPLET_IP }}:/opt/lastdance/backend/be-last-dance.jar
-
-            # B. Restart Service (Sử dụng sudo, không cần mật khẩu nhờ NOPASSWD)
-            echo "Restarting Spring Boot Service..."
+            echo "Starting remote deployment script..."
+            
+            # Vì SCP ở bước trên copy file giữ nguyên tên gốc (vd: app-0.0.1.jar)
+            # Ta cần đổi tên nó về be-last-dance.jar để service chạy đúng file
+            # Lưu ý: Lệnh này sẽ ghi đè file cũ
+            mv /opt/lastdance/backend/*.jar /opt/lastdance/backend/be-last-dance.jar
+            
+            # Restart Service
+            echo "Restarting Systemd Service..."
             sudo systemctl restart backend.service
-
-            # C. Kiểm tra trạng thái (Tùy chọn)
-            sudo systemctl status backend.service
+            
+            # Check status (Nếu fail sẽ báo lỗi pipeline)
+            sudo systemctl status backend.service --no-pager
