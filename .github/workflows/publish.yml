@@ -2,9 +2,9 @@ name: CI/CD Deployment to DigitalOcean Droplet
 
 on:
   push:
-    branches: [ master ]  # Triển khai khi push lên branch main
+    branches: [master] # Triển khai khi push lên branch main
   pull_request:
-    branches: [ master ]  # Chạy CI khi có PR vào branch main
+    branches: [master] # Chạy CI khi có PR vào branch main
   workflow_dispatch: # Cho phép chạy thủ công
 
 jobs:
@@ -19,8 +19,8 @@ jobs:
       - name: Set up JDK 21
         uses: actions/setup-java@v4
         with:
-          distribution: 'temurin'
-          java-version: '21'
+          distribution: "temurin"
+          java-version: "21"
 
       # 3. Build Backend (Spring Boot)
       - name: Build Spring Boot JAR (Maven)
@@ -37,11 +37,11 @@ jobs:
           script: |
             # A. Deployment Backend
             echo "Deploying Backend..."
-            scp ./target/*.jar ${{ secrets.DEPLOY_USER }}@${{ secrets.DROPLET_IP }}:${{ secrets.BE_JAR_PATH }}
-            
+            scp ./target/*.jar ${{ secrets.DEPLOY_USER }}@${{ secrets.DROPLET_IP }}:/opt/lastdance/backend/be-last-dance.jar
+
             # B. Restart Service (Sử dụng sudo, không cần mật khẩu nhờ NOPASSWD)
             echo "Restarting Spring Boot Service..."
             sudo systemctl restart backend.service
-            
+
             # C. Kiểm tra trạng thái (Tùy chọn)
             sudo systemctl status backend.service
