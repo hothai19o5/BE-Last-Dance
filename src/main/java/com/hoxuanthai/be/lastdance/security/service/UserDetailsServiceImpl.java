@@ -14,11 +14,6 @@ import org.springframework.stereotype.Service;
 import java.util.Collections;
 import java.util.Objects;
 
-/**
- * Created on November 2025
- *
- * @author HoXuanThai
- */
 @Slf4j
 @Service
 @RequiredArgsConstructor
@@ -40,8 +35,9 @@ public class UserDetailsServiceImpl implements UserDetailsService {
 		final String authenticatedUsername = authenticatedUser.getUsername();
 		final String authenticatedPassword = authenticatedUser.getPassword();
 		final UserRole userRole = authenticatedUser.getUserRole();
-		final SimpleGrantedAuthority grantedAuthority = new SimpleGrantedAuthority(userRole.name());
+		final SimpleGrantedAuthority grantedAuthority = new SimpleGrantedAuthority("ROLE_" + userRole.name());
+		final boolean enabled = authenticatedUser.isEnabled();
 
-		return new User(authenticatedUsername, authenticatedPassword, Collections.singletonList(grantedAuthority));
+		return new User(authenticatedUsername, authenticatedPassword, enabled, true, true, true, Collections.singletonList(grantedAuthority));
 	}
 }

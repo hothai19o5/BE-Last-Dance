@@ -7,9 +7,9 @@ server:
 
 spring:
   datasource:
-    url: jdbc:postgresql://${POSTGRES_DB_SERVER_ADDRESS:localhost}:${POSTGRES_DB_SERVER_PORT:5432}/lastdance_db
-    username: ${POSTGRES_USER:web_user}
-    password: ${POSTGRES_PASSWORD:iTelecom@123}
+    url: jdbc:postgresql://${POSTGRES_DB_SERVER_ADDRESS}:${POSTGRES_DB_SERVER_PORT}/last_dance
+    username: ${POSTGRES_USER}
+    password: ${POSTGRES_PASSWORD}
     hikari:
       pool-name: SpringBootBoilerplateHikariPool
       maximum-pool-size: 5
@@ -41,7 +41,7 @@ logging:
     "[com.hoxuanthai.be.lastdance]": INFO
 
 jwt:
-  secretKey: ${JWT_SECRET_KEY:secret}
+  secretKey: ${JWT_SECRET_KEY}
   issuer: www.hoxuanthai.id.vn
   expirationMinute: 20160 # 14 days
 

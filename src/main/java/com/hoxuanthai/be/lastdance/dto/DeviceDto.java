@@ -14,18 +14,22 @@ import java.time.LocalDateTime;
 @NoArgsConstructor
 @AllArgsConstructor
 public class DeviceDto {
+
     private Long id;
+
     @NotNull
     @NotBlank
     private String deviceUuid;
+
     @NotNull
     @NotBlank
     private String deviceName;
-    private LocalDateTime lastSyncAt;
+
     private boolean isActive;
+
     private Long userId;
+
     @NotNull
     @NotBlank
     private String username;
-    private LocalDateTime createdAt;
 }

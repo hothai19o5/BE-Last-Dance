@@ -12,11 +12,6 @@ import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.stereotype.Service;
 
-/**
- * Created on November 2025
- *
- * @author HoXuanThai
- */
 @Slf4j
 @Service
 @RequiredArgsConstructor

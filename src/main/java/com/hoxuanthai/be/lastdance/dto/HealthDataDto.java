@@ -12,9 +12,11 @@ import java.util.List;
 @NoArgsConstructor
 @AllArgsConstructor
 public class HealthDataDto {
+
     @NotNull
     @NotBlank
     String deviceUuid;
+    
     @NotNull
     List<DataPoint> dataPoints;
 }

@@ -41,7 +41,7 @@ jobs:
             
             # B. Restart Service (Sử dụng sudo, không cần mật khẩu nhờ NOPASSWD)
             echo "Restarting Spring Boot Service..."
-            sudo systemctl restart springboot.service
+            sudo systemctl restart backend.service
             
             # C. Kiểm tra trạng thái (Tùy chọn)
-            # sudo systemctl status springboot.service
+            sudo systemctl status backend.service

@@ -4,11 +4,6 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.Setter;
 
-/**
- * Created on November 2025
- *
- * @author HoXuanThai
- */
 @Getter
 @Setter
 @AllArgsConstructor

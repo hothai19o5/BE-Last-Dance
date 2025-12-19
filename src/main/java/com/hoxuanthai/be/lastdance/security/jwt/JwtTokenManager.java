@@ -11,11 +11,6 @@ import org.springframework.stereotype.Component;
 
 import java.util.Date;
 
-/**
- * Created on November 2025
- *
- * @author HoXuanThai
- */
 @Component
 @RequiredArgsConstructor
 public class JwtTokenManager {

@@ -1,5 +1,6 @@
 package com.hoxuanthai.be.lastdance.entity;
 
+import java.time.LocalDate;
 import java.util.List;
 
 import jakarta.persistence.CascadeType;
@@ -7,34 +8,20 @@ import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
+import lombok.experimental.SuperBuilder;
 
-/**
- * Created on November 2025
- *
- * @author HoXuanThai
- */
+@Entity
 @Getter
 @Setter
-@Entity
+@SuperBuilder
 @NoArgsConstructor
 @AllArgsConstructor
 @Table(name = "USERS")
-public class User {
-
-	@Id
-	@GeneratedValue(strategy = GenerationType.IDENTITY)
-	private Long id;
-
-	private String name;
+@EqualsAndHashCode(callSuper = true)
+public class User extends BaseEntity {
 
 	@Column(unique = true)
 	private String username;
@@ -43,13 +30,37 @@ public class User {
 
 	private String email;
 
+	@Column(name="first_name")
+	private String firstName;
+
+	@Column(name="last_name")
+	private String lastName;
+
+	@Enumerated(EnumType.STRING)
+	private Gender gender;
+
+	@Column(name="date_of_birth")
+	private LocalDate dob;
+
+	@Column(name="weight_kg")
+	private Double weightKg;
+
+	@Column(name="height_m")
+	private Double heightM;
+
+	@Column(name="bmi")
+	private Double bmi;
+
 	@Enumerated(EnumType.STRING)
 	private UserRole userRole;
 
 	@Column(name="profile_picture_url")
 	private String profilePictureUrl;
 
-	@OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
-	private List<BodyMeasurement> bodyMeasurements;
+	@Column(name="enabled", nullable = false)
+	@Builder.Default
+	private Boolean enabled = false;
 
+	@OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
+	private List<Device> devices;
 }

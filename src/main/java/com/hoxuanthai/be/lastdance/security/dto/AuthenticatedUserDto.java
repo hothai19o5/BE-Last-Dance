@@ -5,17 +5,16 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
-/**
- * Created on November 2025
- *
- * @author HoXuanThai
- */
 @Getter
 @Setter
 @NoArgsConstructor
 public class AuthenticatedUserDto {
 
-	private String name;
+	private Long id;
+
+	private String firstName;
+
+	private String lastName;
 
 	private String username;
 
@@ -23,4 +22,5 @@ public class AuthenticatedUserDto {
 
 	private UserRole userRole;
 
+	private boolean enabled;
 }

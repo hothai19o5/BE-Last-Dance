@@ -20,11 +20,6 @@ import org.springframework.web.filter.OncePerRequestFilter;
 import java.io.IOException;
 import java.util.Objects;
 
-/**
- * Created on November 2025
- *
- * @author HoXuanThai
- */
 @Slf4j
 @Service
 @RequiredArgsConstructor
@@ -68,7 +63,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 		final UserDetails user = userDetailsService.loadUserByUsername(username);
 		final boolean validToken = jwtTokenManager.validateToken(authToken, user.getUsername());
 
-		if (!validToken) {
+		if (!validToken || !user.isEnabled()) {
 			chain.doFilter(request, response);
 			return;
 		}

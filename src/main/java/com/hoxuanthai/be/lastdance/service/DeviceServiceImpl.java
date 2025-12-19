@@ -3,6 +3,8 @@ package com.hoxuanthai.be.lastdance.service;
 import com.hoxuanthai.be.lastdance.dto.DataPoint;
 import com.hoxuanthai.be.lastdance.dto.DeviceDto;
 import com.hoxuanthai.be.lastdance.dto.HealthDataDto;
+import com.hoxuanthai.be.lastdance.dto.response.DevicesStats;
+import com.hoxuanthai.be.lastdance.exceptions.ResourceNotFoundException;
 import com.hoxuanthai.be.lastdance.mapper.DeviceMapper;
 import com.hoxuanthai.be.lastdance.entity.Device;
 import com.hoxuanthai.be.lastdance.entity.HealthData;
@@ -11,27 +13,31 @@ import com.hoxuanthai.be.lastdance.repository.DeviceRepository;
 import com.hoxuanthai.be.lastdance.repository.HealthDataRepository;
 import com.hoxuanthai.be.lastdance.repository.UserRepository;
 import jakarta.transaction.Transactional;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
+import java.lang.module.ResolutionException;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
 @Slf4j
 @Service
+@RequiredArgsConstructor
 public class DeviceServiceImpl implements DeviceService {
 
-    @Autowired
-    private DeviceRepository deviceRepository;
-    @Autowired
-    private UserRepository userRepository;
-    @Autowired
-    private HealthDataRepository healthDataRepository;
+    private final DeviceRepository deviceRepository;
 
-    @Autowired
-    private DeviceMapper deviceMapper;
+    private final UserRepository userRepository;
+
+    private final HealthDataRepository healthDataRepository;
+
+    private final DeviceMapper deviceMapper;
 
     /**
      * Đăng ký một thiết bị mới cho người dùng.
@@ -94,12 +100,9 @@ public class DeviceServiceImpl implements DeviceService {
      */
     @Override
     @Transactional
-    public boolean syncHealthData(HealthDataDto healthDataDto) {
-        Device device = deviceRepository.findByDeviceUuid(healthDataDto.getDeviceUuid());
-        if (device == null) {
-            log.warn("Device with UUID {} not found", healthDataDto.getDeviceUuid());
-            return false;
-        }
+    public void syncHealthData(HealthDataDto healthDataDto) {
+
+        Device device = deviceRepository.findByDeviceUuid(healthDataDto.getDeviceUuid()).orElseThrow(() -> new ResourceNotFoundException("Device with UUID " + healthDataDto.getDeviceUuid() + " not found"));
 
         List<HealthData> healthDataList = new ArrayList<>();
         for (DataPoint datapoint : healthDataDto.getDataPoints()) {
@@ -114,7 +117,7 @@ public class DeviceServiceImpl implements DeviceService {
         }
 
         healthDataRepository.saveAll(healthDataList);
-        return true;
+
     }
 
     /**
@@ -129,11 +132,8 @@ public class DeviceServiceImpl implements DeviceService {
      */
     @Override
     public HealthDataDto getHealthData(Long userId, String deviceUuid, LocalDateTime startDate, LocalDateTime endDate) {
-        User user = userRepository.findById(userId).orElseThrow(() -> new RuntimeException("User not found"));
-        Device device = deviceRepository.findByDeviceUuid(deviceUuid);
-        if (device == null || !device.getUser().getId().equals(userId)) {
-            throw new RuntimeException("Device not found for the user");
-        }
+        userRepository.findById(userId).orElseThrow(() -> new ResourceNotFoundException(""));
+        Device device = deviceRepository.findByDeviceUuid(deviceUuid).orElseThrow(() -> new ResourceNotFoundException(""));
         List<HealthData> healthDataList = healthDataRepository.findByDeviceAndTimestampBetween(device, startDate, endDate);
         List<DataPoint> dataPoints = new ArrayList<>();
         for (HealthData healthData : healthDataList) {
@@ -151,5 +151,35 @@ public class DeviceServiceImpl implements DeviceService {
                 .build();
     }
 
+    /**
+     * Lấy tất cả các thiết bị với phân trang và sắp xếp.
+     *
+     * @param page   Số trang (bắt đầu từ 0).
+     * @param size   Kích thước trang.
+     * @param sortBy Trường để sắp xếp.
+     * @return Trang chứa các đối tượng DeviceDto.
+     */
+    @Override
+    public Page<DeviceDto> getAllDevices(int page, int size, String sortBy) {
+        Pageable pageable = PageRequest.of(page, size, Sort.by(sortBy).ascending());
+        return deviceRepository.findAll(pageable).map(deviceMapper::toDto);
+    }
 
+    /**
+     * Lấy thống kê về thiết bị trong hệ thống.
+     *
+     * @return DevicesStats chứa tổng số thiết bị, số thiết bị hoạt động và số thiết bị không hoạt động.
+     */
+    @Override
+    public DevicesStats getDevicesStats() {
+        Long totalDevices = deviceRepository.count();
+        Long activeDevices = deviceRepository.countActiveDevices();
+        Long inactiveDevices = totalDevices - activeDevices;
+
+        return DevicesStats.builder()
+                .totalDevices(totalDevices)
+                .activeDevices(activeDevices)
+                .inactiveDevices(inactiveDevices)
+                .build();
+    }
 }

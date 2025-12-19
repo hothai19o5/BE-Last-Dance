@@ -1,10 +1,5 @@
 package com.hoxuanthai.be.lastdance.security.utils;
 
-/**
- * Created on November 2025
- *
- * @author HoXuanThai
- */
 public class SecurityConstants {
 
 	/**

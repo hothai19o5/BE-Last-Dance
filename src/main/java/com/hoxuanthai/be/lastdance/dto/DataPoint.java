@@ -11,6 +11,7 @@ import java.time.LocalDateTime;
 @NoArgsConstructor
 @AllArgsConstructor
 public class DataPoint {
+    
     @NotNull
     private LocalDateTime timestamp;
 
@@ -19,6 +20,4 @@ public class DataPoint {
     private Double spo2;
 
     private Integer stepCount;
-
-    private Double caloriesBurned;
 }
