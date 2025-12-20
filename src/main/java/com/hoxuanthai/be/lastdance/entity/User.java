@@ -59,7 +59,7 @@ public class User extends BaseEntity {
 
 	@Column(name="enabled", nullable = false)
 	@Builder.Default
-	private Boolean enabled = false;
+	private Boolean enabled = true;
 
 	@OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
 	private List<Device> devices;
