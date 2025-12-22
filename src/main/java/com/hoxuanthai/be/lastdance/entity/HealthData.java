@@ -2,29 +2,30 @@ package com.hoxuanthai.be.lastdance.entity;
 
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
-import lombok.EqualsAndHashCode;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-import lombok.experimental.SuperBuilder;
 
 import java.time.LocalDateTime;
 
 @Entity
 @Getter
 @Setter
-@SuperBuilder
+@Builder
 @NoArgsConstructor
 @AllArgsConstructor
 @Table(name = "HEALTH_DATA")
-@EqualsAndHashCode(callSuper = true)
-public class HealthData extends BaseEntity {
+public class HealthData {
+
+    @Id
+    private Long id;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "device_id", nullable = false)
     private Device device;
 
-    @Column(name = "timestamp", nullable = false)
+    @Id
     private LocalDateTime timestamp;
 
     @Column(name = "heart_rate")

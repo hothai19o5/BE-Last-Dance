@@ -16,11 +16,11 @@ public interface UserRepository extends JpaRepository<User, Long> {
 
 	boolean existsByUsername(String username);
 
-	@Query("SELECT u FROM User u LEFT JOIN FETCH u.devices WHERE u.id = ?1")
+	@Query("SELECT u FROM User u LEFT JOIN FETCH u.devices WHERE u.id = ?1 AND u.userRole = 'USER'")
 	Optional<User> findByIdWithDevices(Long id);
 
-	@Query(value = "SELECT DISTINCT u FROM User u LEFT JOIN FETCH u.devices",
-		   countQuery = "SELECT COUNT(u) FROM User u")
+	@Query(value = "SELECT DISTINCT u FROM User u LEFT JOIN FETCH u.devices WHERE u.userRole = 'USER'",
+		   countQuery = "SELECT COUNT(u) FROM User u WHERE u.userRole = 'USER'")
 	Page<User> findAllWithDevices(Pageable pageable);
 
 	@Query("SELECT COUNT(u.id) FROM User u WHERE u.userRole = 'USER'")
