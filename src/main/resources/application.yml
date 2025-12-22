@@ -20,6 +20,10 @@ spring:
     database-platform: org.hibernate.dialect.PostgreSQLDialect
   jta:
     enabled: false
+  flyway:
+    baseline-on-migrate: true
+    schemas: public
+    default-schema: public
 
 springdoc:
   show-actuator: true

@@ -1,11 +1,7 @@
 package com.hoxuanthai.be.lastdance.entity;
 
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
 
 import java.time.LocalDateTime;
 
@@ -13,6 +9,7 @@ import java.time.LocalDateTime;
 @Getter
 @Setter
 @Builder
+@IdClass(HealthDataId.class)
 @NoArgsConstructor
 @AllArgsConstructor
 @Table(name = "HEALTH_DATA")
@@ -21,12 +18,12 @@ public class HealthData {
     @Id
     private Long id;
 
+    @Id
+    private LocalDateTime timestamp;
+
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "device_id", nullable = false)
     private Device device;
-
-    @Id
-    private LocalDateTime timestamp;
 
     @Column(name = "heart_rate")
     private Integer heartRate;

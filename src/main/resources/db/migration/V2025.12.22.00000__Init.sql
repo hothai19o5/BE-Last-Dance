@@ -1,3 +1,6 @@
+-- Thiết lập search_path để Postgres biết phải làm việc trong schema 'public'
+SET search_path = public;
+
 -- EXTENSION: Kích hoạt TimescaleDB cho time-series data
 CREATE EXTENSION IF NOT EXISTS timescaledb CASCADE;
 
