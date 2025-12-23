@@ -6,11 +6,14 @@ import com.hoxuanthai.be.lastdance.dto.response.PageResponse;
 import com.hoxuanthai.be.lastdance.dto.UserDto;
 import com.hoxuanthai.be.lastdance.security.service.UserService;
 import com.hoxuanthai.be.lastdance.service.DeviceService;
+import com.sun.security.auth.UserPrincipal;
 import io.swagger.v3.oas.annotations.Operation;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDateTime;
@@ -60,8 +63,8 @@ public class UserController {
     @GetMapping("/user/me")
     @PreAuthorize("hasRole('USER')")
     @Operation(tags = "User Service", description = "Get profile of the logged-in user.")
-    public ResponseEntity<BaseResponse<UserDto>> getProfile(@RequestParam String username) {
-        return BaseResponse.success(userService.getUserDetailByUsername(username));
+    public ResponseEntity<BaseResponse<UserDto>> getProfile(Authentication authentication) {
+        return BaseResponse.success(userService.getUserDetailByUsername(authentication.getName()));
     }
     
 

@@ -10,6 +10,7 @@ import java.util.Optional;
 
 public interface UserRepository extends JpaRepository<User, Long> {
 
+	@Query("SELECT u FROM User u LEFT JOIN FETCH u.devices WHERE u.username = ?1")
 	User findByUsername(String username);
 
 	boolean existsByEmail(String email);

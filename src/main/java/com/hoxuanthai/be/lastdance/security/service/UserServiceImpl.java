@@ -115,6 +115,11 @@ public class UserServiceImpl implements UserService {
 		return userMapper.toDetailDto(user);
 	}
 
+	/**
+	 * Lấy thông tin chi tiết bản thân.
+	 * @return Detail User Dto chứa thông tin chi tiết của người dùng
+	 * @throws ResourceNotFoundException nếu không tìm thấy người dùng với username đã cho
+	 */
 	@Override
 	public UserDto getUserDetailByUsername(String username) {
 		User user = userRepository.findByUsername(username);
