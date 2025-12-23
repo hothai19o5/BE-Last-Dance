@@ -23,4 +23,6 @@ public interface DeviceService {
     Page<DeviceDto> getAllDevices(int page, int size, String sortBy);
 
     DevicesStats getDevicesStats();
+
+    void removeDevice(String deviceUuid);
 }

@@ -20,9 +20,13 @@ public interface UserService {
 
 	UserDto getUserById(Long userId);
 
+	UserDto getUserDetailByUsername(String username);
+
 	UserDto updateUserInfo(UserDto userDto);
 
 	void changePassword(Long userId, String oldPassword, String newPassword);
 
 	UsersStats getUsersStats();
+
+	void deleteUserById(Long id);
 }

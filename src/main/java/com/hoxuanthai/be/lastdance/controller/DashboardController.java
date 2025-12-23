@@ -1,5 +1,6 @@
 package com.hoxuanthai.be.lastdance.controller;
 
+import com.hoxuanthai.be.lastdance.dto.response.DashboardStats;
 import com.hoxuanthai.be.lastdance.service.DashboardService;
 import io.swagger.v3.oas.annotations.Operation;
 import lombok.RequiredArgsConstructor;
@@ -17,7 +18,7 @@ public class DashboardController {
     @GetMapping("/dashboard")
     @PreAuthorize("hasRole('ADMIN')")
     @Operation(tags = "Dashboard Service", description = "Get dashboard overview data.")
-    ResponseEntity getDashboardOverview() {
-        return ResponseEntity.ok(dashboardService.getDashboardStats());
+    ResponseEntity<BaseResponse<DashboardStats>> getDashboardOverview() {
+        return BaseResponse.success(dashboardService.getDashboardStats());
     }
 }

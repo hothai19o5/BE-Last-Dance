@@ -21,7 +21,6 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
-import java.lang.module.ResolutionException;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
@@ -61,9 +60,11 @@ public class DeviceServiceImpl implements DeviceService {
     /**
      * Cập nhật thông tin của một thiết bị đã tồn tại.
      *
-     * @param deviceDto Đối tượng DeviceDto chứa thông tin cập nhật. ID của thiết bị là bắt buộc.
+     * @param deviceDto Đối tượng DeviceDto chứa thông tin cập nhật. ID của thiết bị
+     *                  là bắt buộc.
      * @return DeviceDto của thiết bị sau khi đã được cập nhật.
-     * @throws RuntimeException nếu ID của thiết bị không được cung cấp hoặc không tìm thấy thiết bị tương ứng.
+     * @throws RuntimeException nếu ID của thiết bị không được cung cấp hoặc không
+     *                          tìm thấy thiết bị tương ứng.
      */
     @Override
     @Transactional
@@ -95,14 +96,17 @@ public class DeviceServiceImpl implements DeviceService {
      * Phương thức này nhận dữ liệu sức khỏe, tìm thiết bị tương ứng bằng UUID,
      * và lưu các điểm dữ liệu sức khỏe vào cơ sở dữ liệu.
      *
-     * @param healthDataDto Đối tượng chứa UUID của thiết bị và danh sách các điểm dữ liệu sức khỏe.
+     * @param healthDataDto Đối tượng chứa UUID của thiết bị và danh sách các điểm
+     *                      dữ liệu sức khỏe.
      * @return true nếu đồng bộ thành công, false nếu không tìm thấy thiết bị.
      */
     @Override
     @Transactional
     public void syncHealthData(HealthDataDto healthDataDto) {
 
-        Device device = deviceRepository.findByDeviceUuid(healthDataDto.getDeviceUuid()).orElseThrow(() -> new ResourceNotFoundException("Device with UUID " + healthDataDto.getDeviceUuid() + " not found"));
+        Device device = deviceRepository.findByDeviceUuid(healthDataDto.getDeviceUuid())
+                .orElseThrow(() -> new ResourceNotFoundException(
+                        "Device with UUID " + healthDataDto.getDeviceUuid() + " not found"));
 
         List<HealthData> healthDataList = new ArrayList<>();
         for (DataPoint datapoint : healthDataDto.getDataPoints()) {
@@ -127,14 +131,18 @@ public class DeviceServiceImpl implements DeviceService {
      * @param deviceUuid UUID của thiết bị.
      * @param startDate  Thời điểm bắt đầu của khoảng thời gian.
      * @param endDate    Thời điểm kết thúc của khoảng thời gian.
-     * @return HealthDataDto chứa danh sách các điểm dữ liệu sức khỏe trong khoảng thời gian.
-     * @throws RuntimeException nếu không tìm thấy người dùng hoặc thiết bị tương ứng.
+     * @return HealthDataDto chứa danh sách các điểm dữ liệu sức khỏe trong khoảng
+     *         thời gian.
+     * @throws RuntimeException nếu không tìm thấy người dùng hoặc thiết bị tương
+     *                          ứng.
      */
     @Override
     public HealthDataDto getHealthData(Long userId, String deviceUuid, LocalDateTime startDate, LocalDateTime endDate) {
         userRepository.findById(userId).orElseThrow(() -> new ResourceNotFoundException(""));
-        Device device = deviceRepository.findByDeviceUuid(deviceUuid).orElseThrow(() -> new ResourceNotFoundException(""));
-        List<HealthData> healthDataList = healthDataRepository.findByDeviceAndTimestampBetween(device, startDate, endDate);
+        Device device = deviceRepository.findByDeviceUuid(deviceUuid)
+                .orElseThrow(() -> new ResourceNotFoundException(""));
+        List<HealthData> healthDataList = healthDataRepository.findByDeviceAndTimestampBetween(device, startDate,
+                endDate);
         List<DataPoint> dataPoints = new ArrayList<>();
         for (HealthData healthData : healthDataList) {
             DataPoint dataPoint = DataPoint.builder()
@@ -168,7 +176,8 @@ public class DeviceServiceImpl implements DeviceService {
     /**
      * Lấy thống kê về thiết bị trong hệ thống.
      *
-     * @return DevicesStats chứa tổng số thiết bị, số thiết bị hoạt động và số thiết bị không hoạt động.
+     * @return DevicesStats chứa tổng số thiết bị, số thiết bị hoạt động và số thiết
+     *         bị không hoạt động.
      */
     @Override
     public DevicesStats getDevicesStats() {
@@ -181,5 +190,14 @@ public class DeviceServiceImpl implements DeviceService {
                 .activeDevices(activeDevices)
                 .inactiveDevices(inactiveDevices)
                 .build();
+    }
+
+    @Override
+    @Transactional
+    public void removeDevice(String deviceUuid) {
+        Device device = deviceRepository.findByDeviceUuid(deviceUuid)
+                .orElseThrow(() -> new ResourceNotFoundException("Device with UUID " + deviceUuid + " not found"));
+        device.setDeleted(true);
+        deviceRepository.save(device);
     }
 }

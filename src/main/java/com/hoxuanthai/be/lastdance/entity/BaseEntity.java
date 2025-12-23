@@ -13,6 +13,7 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.MappedSuperclass;
 import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -37,4 +38,8 @@ public class BaseEntity {
 
     @LastModifiedDate
     private LocalDateTime updatedAt;
+
+    @Column(nullable = false)
+    @Builder.Default
+    private Boolean deleted = false;
 }

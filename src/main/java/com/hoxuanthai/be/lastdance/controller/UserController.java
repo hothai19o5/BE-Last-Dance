@@ -15,6 +15,9 @@ import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+
 
 @RestController
 @RequiredArgsConstructor
@@ -53,6 +56,14 @@ public class UserController {
         UserDto result = userService.getUserById(id);
         return BaseResponse.success(result);
     }
+
+    @GetMapping("/user/me")
+    @PreAuthorize("hasRole('USER')")
+    @Operation(tags = "User Service", description = "Get profile of the logged-in user.")
+    public ResponseEntity<BaseResponse<UserDto>> getProfile(@RequestParam String username) {
+        return BaseResponse.success(userService.getUserDetailByUsername(username));
+    }
+    
 
     @GetMapping("/user/{id}/devices")
     @Operation(tags = "User Service", description = "Get all devices registered to the user.")
@@ -99,5 +110,13 @@ public class UserController {
         }
         HealthDataDto result = deviceService.getHealthData(userId, deviceUuid, startDate, endDate);
         return BaseResponse.success(result);
+    }
+
+    @DeleteMapping("/user/{id}")
+    @PreAuthorize("hasRole('ADMIN')")
+    @Operation(tags = "User Service", description = "Admin delete user by id.")
+    public ResponseEntity<BaseResponse<String>> deleteUserById(@PathVariable Long id) {
+        userService.deleteUserById(id);
+        return BaseResponse.success(null, "User deleted successfully.");
     }
 }

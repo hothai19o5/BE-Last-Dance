@@ -45,10 +45,9 @@ public class UserServiceImpl implements UserService {
 		return userRepository.findByUsername(username);
 	}
 
-
 	/**
 	 * Registers a new user in the system.
-
+	 * 
 	 * @param registrationRequest the registration request containing user details
 	 * @return RegistrationResponse containing success message
 	 */
@@ -65,7 +64,8 @@ public class UserServiceImpl implements UserService {
 		userRepository.save(user);
 
 		final String username = registrationRequest.getUsername();
-		final String registrationSuccessMessage = generalMessageAccessor.getMessage(null, REGISTRATION_SUCCESSFUL, username);
+		final String registrationSuccessMessage = generalMessageAccessor.getMessage(null, REGISTRATION_SUCCESSFUL,
+				username);
 
 		log.info("{} registered successfully!", username);
 
@@ -74,7 +74,7 @@ public class UserServiceImpl implements UserService {
 
 	/**
 	 * Finds an authenticated user by their username.
-
+	 * 
 	 * @param username the username of the user to find
 	 * @return AuthenticatedUserDto containing user details
 	 * @throws RuntimeException if no user is found with the given username
@@ -89,7 +89,7 @@ public class UserServiceImpl implements UserService {
 
 	/**
 	 * Retrieves a paginated list of all users along with their associated devices.
-
+	 * 
 	 * @param page   the page number to retrieve
 	 * @param size   the number of users per page
 	 * @param sortBy the field to sort the users by
@@ -103,7 +103,7 @@ public class UserServiceImpl implements UserService {
 
 	/**
 	 * Retrieves a user by their ID along with associated devices.
-
+	 * 
 	 * @param userId the ID of the user to retrieve
 	 * @return UserDto containing user details and associated devices
 	 * @throws RuntimeException if no user is found with the given ID
@@ -115,8 +115,18 @@ public class UserServiceImpl implements UserService {
 		return userMapper.toDetailDto(user);
 	}
 
+	@Override
+	public UserDto getUserDetailByUsername(String username) {
+		User user = userRepository.findByUsername(username);
+		if (user == null) {
+			throw new ResourceNotFoundException("User not found with username: " + username);
+		}
+		return userMapper.toDetailDto(user);
+	}
+
 	/**
 	 * Cập nhật thông tin người dùng ( weight, height, age, dob, ... )
+	 * 
 	 * @param userDto thông tin người dùng cần cập nhật
 	 * @return UserDto thông tin người dùng sau khi cập nhật
 	 * @throws ResourceNotFoundException nếu không tìm thấy người dùng với Id đã cho
@@ -133,7 +143,8 @@ public class UserServiceImpl implements UserService {
 
 	/**
 	 * Đổi mật khẩu cho người dùng.
-	 * @param userId Id của người dùng
+	 * 
+	 * @param userId      Id của người dùng
 	 * @param oldPassword mật khẩu cũ
 	 * @param newPassword mật khẩu mới
 	 * @throws ResourceNotFoundException nếu không tìm thấy người dùng với Id đã cho
@@ -156,6 +167,7 @@ public class UserServiceImpl implements UserService {
 
 	/**
 	 * Lấy thống kê về người dùng trong hệ thống.
+	 * 
 	 * @return UsersStats đối tượng chứa thống kê về người dùng
 	 */
 	@Override
@@ -166,5 +178,15 @@ public class UserServiceImpl implements UserService {
 				.totalUsers(totalUsers)
 				.activeUsers(totalUsersActive)
 				.build();
+	}
+
+	@Override
+	@Transactional
+	public void deleteUserById(Long id) {
+		User user = userRepository.findById(id)
+				.orElseThrow(() -> new ResourceNotFoundException("User not found with Id: " + id));
+
+		user.setDeleted(true);
+		userRepository.save(user);
 	}
 }

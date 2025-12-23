@@ -10,8 +10,12 @@ import com.hoxuanthai.be.lastdance.service.DeviceService;
 import io.swagger.v3.oas.annotations.Operation;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+
+import java.util.UUID;
+
 import org.springframework.data.domain.Page;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -25,8 +29,7 @@ public class DeviceController {
     ResponseEntity<BaseResponse<PageResponse<DeviceDto>>> getAllDevices(
             @RequestParam(required = false, defaultValue = "0") Integer page,
             @RequestParam(required = false, defaultValue = "10") Integer size,
-            @RequestParam(required = false, defaultValue = "id") String sortBy
-    ) {
+            @RequestParam(required = false, defaultValue = "id") String sortBy) {
         Page<DeviceDto> devicePage = deviceService.getAllDevices(page, size, sortBy);
 
         PageResponse<DeviceDto> pageResponse = PageResponse.<DeviceDto>builder()
@@ -61,5 +64,12 @@ public class DeviceController {
     ResponseEntity<BaseResponse<String>> syncHealthData(@RequestBody @Valid HealthDataDto healthDataDto) {
         deviceService.syncHealthData(healthDataDto);
         return BaseResponse.success(null, "Sync data successfully!");
+    }
+
+    @DeleteMapping("/device/{deviceUuid}")
+    @Operation(tags = "Device Service", description = "User remove device.")
+    ResponseEntity<BaseResponse<String>> removeDevice(@PathVariable String deviceUuid) {
+        deviceService.removeDevice(deviceUuid);
+        return BaseResponse.success(null, "Device removed successfully!");
     }
 }
