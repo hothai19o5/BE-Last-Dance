@@ -20,14 +20,15 @@ CREATE TABLE IF NOT EXISTS USERS (
     user_role VARCHAR(20) NOT NULL CHECK (user_role IN ('USER', 'ADMIN', 'MANAGER')),
     profile_picture_url TEXT,
     enabled BOOLEAN NOT NULL DEFAULT TRUE,
+    deleted BOOLEAN NOT NULL DEFAULT FALSE,
     created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
     );
 
 -- Index cho tìm kiếm nhanh theo username và email
-CREATE INDEX idx_users_username ON USERS(username);
-CREATE INDEX idx_users_email ON USERS(email);
-CREATE INDEX idx_users_enabled ON USERS(enabled);
+CREATE INDEX IF NOT EXISTS idx_users_username ON USERS(username);
+CREATE INDEX IF NOT EXISTS idx_users_email ON USERS(email);
+CREATE INDEX IF NOT EXISTS idx_users_enabled ON USERS(enabled);
 
 -- BẢNG DEVICES - Lưu trữ thông tin thiết bị
 CREATE TABLE IF NOT EXISTS DEVICES (
@@ -36,15 +37,16 @@ CREATE TABLE IF NOT EXISTS DEVICES (
     device_name VARCHAR(255) NOT NULL,
     is_active BOOLEAN NOT NULL DEFAULT TRUE,
     user_id BIGINT NOT NULL,
+    deleted BOOLEAN NOT NULL DEFAULT FALSE,
     created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
     CONSTRAINT fk_devices_user FOREIGN KEY (user_id) REFERENCES USERS(id) ON DELETE CASCADE
     );
 
 -- Index cho tìm kiếm nhanh theo device_uuid và user_id
-CREATE INDEX idx_devices_uuid ON DEVICES(device_uuid);
-CREATE INDEX idx_devices_user_id ON DEVICES(user_id);
-CREATE INDEX idx_devices_active ON DEVICES(is_active);
+CREATE INDEX IF NOT EXISTS idx_devices_uuid ON DEVICES(device_uuid);
+CREATE INDEX IF NOT EXISTS idx_devices_user_id ON DEVICES(user_id);
+CREATE INDEX IF NOT EXISTS idx_devices_active ON DEVICES(is_active);
 
 -- BẢNG HEALTH_DATA - Lưu trữ dữ liệu sức khỏe
 CREATE TABLE IF NOT EXISTS HEALTH_DATA (
@@ -66,8 +68,8 @@ SELECT create_hypertable('HEALTH_DATA', 'timestamp',
        );
 
 -- Index cho tìm kiếm nhanh theo device_id và timestamp
-CREATE INDEX idx_health_data_device_id ON HEALTH_DATA(device_id, timestamp DESC);
-CREATE INDEX idx_health_data_timestamp ON HEALTH_DATA(timestamp DESC);
+CREATE INDEX IF NOT EXISTS idx_health_data_device_id ON HEALTH_DATA(device_id, timestamp DESC);
+CREATE INDEX IF NOT EXISTS idx_health_data_timestamp ON HEALTH_DATA(timestamp DESC);
 
 -- Compression policy: Tự động nén dữ liệu cũ hơn 7 ngày
 ALTER TABLE HEALTH_DATA SET (
@@ -116,14 +118,29 @@ VALUES (
 COMMENT ON TABLE USERS IS 'Bảng lưu trữ thông tin người dùng hệ thống';
 COMMENT ON COLUMN USERS.username IS 'Tên đăng nhập (duy nhất)';
 COMMENT ON COLUMN USERS.password IS 'Mật khẩu đã được mã hóa';
+COMMENT ON COLUMN USERS.email IS 'Địa chỉ email của người dùng';
+COMMENT ON COLUMN USERS.first_name IS 'Tên người dùng';
+COMMENT ON COLUMN USERS.last_name IS 'Họ người dùng';
 COMMENT ON COLUMN USERS.user_role IS 'Vai trò: USER, ADMIN, MANAGER';
+COMMENT ON COLUMN USERS.weight_kg IS 'Cân nặng (kg)';
+COMMENT ON COLUMN USERS.height_m IS 'Chiều cao (m)';
+COMMENT ON COLUMN USERS.date_of_birth IS 'Ngày sinh của người dùng';
+COMMENT ON COLUMN USERS.gender IS 'Giới tính của người dùng';
 COMMENT ON COLUMN USERS.bmi IS 'Chỉ số BMI tự động tính toán';
+COMMENT ON COLUMN USERS.profile_picture_url IS 'URL hình đại diện người dùng';
+COMMENT ON COLUMN USERS.user_role IS 'Vai trò của người dùng trong hệ thống';
+COMMENT ON COLUMN USERS.enabled IS 'Trạng thái kích hoạt tài khoản';
+COMMENT ON COLUMN USERS.deleted IS 'Đánh dấu tài khoản đã bị xóa';
 
 COMMENT ON TABLE DEVICES IS 'Bảng lưu trữ thông tin thiết bị đeo';
 COMMENT ON COLUMN DEVICES.device_uuid IS 'Mã định danh duy nhất của thiết bị';
 COMMENT ON COLUMN DEVICES.is_active IS 'Trạng thái hoạt động của thiết bị';
+COMMENT ON COLUMN DEVICES.deleted IS 'Đánh dấu thiết bị đã bị xóa';
 
 COMMENT ON TABLE HEALTH_DATA IS 'Bảng lưu trữ dữ liệu sức khỏe từ thiết bị';
 COMMENT ON COLUMN HEALTH_DATA.heart_rate IS 'Nhịp tim (bpm)';
 COMMENT ON COLUMN HEALTH_DATA.steps_count IS 'Số bước chân';
 COMMENT ON COLUMN HEALTH_DATA.spo2_percent IS 'Nồng độ oxy trong máu (%)';
+COMMENT ON COLUMN HEALTH_DATA.timestamp IS 'Thời điểm ghi nhận dữ liệu';
+COMMENT ON COLUMN HEALTH_DATA.device_id IS 'Tham chiếu đến thiết bị trong bảng DEVICES';
+
