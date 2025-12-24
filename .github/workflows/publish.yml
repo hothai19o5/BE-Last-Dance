@@ -37,13 +37,13 @@ jobs:
          tags: ${{ secrets.DOCKER_USERNAME }}/be-last-dance:latest
 
       # 4. Copy file docker-compose.yml từ Github sang Server
-      - name: Copy docker-compose to Server
+      - name: Copy docker compose to Server
         uses: appleboy/scp-action@v0.1.7
         with:
          host: ${{ secrets.DROPLET_IP }}
          username: ${{ secrets.DEPLOY_USER }}
          key: ${{ secrets.SSH_PRIVATE_KEY }}
-         source: "docker-compose.yml"     # File trong repo Github
+         source: "docker compose.yml"     # File trong repo Github
          target: "/opt/lastdance/"        # Thư mục trên Server (nơi chứa .env)
 
       # 5. Connect SSH vào Server để chạy lệnh Docker Pull và Restart Container
@@ -57,10 +57,10 @@ jobs:
               cd /opt/lastdance/ # Vào thư mục chứa file docker-compose.yml
               
               # 1. Pull code mới về (nếu bạn để image name cố định là latest)
-              docker-compose pull backend
+              docker compose pull backend
               
               # 2. Tái khởi động (Docker tự biết chỉ restart service backend)
-              docker-compose up -d --remove-orphans
+              docker compose up -d --remove-orphans
               
               # 3. Xóa các image cũ không dùng đến để giải phóng dung lượng
               docker images prune -f
