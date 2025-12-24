@@ -18,8 +18,8 @@ WORKDIR /last-dance-backend
 # Copy file JAR từ stage build sang stage run
 COPY --from=build /last-dance-backend/target/*.jar last-dance-backend.jar
 # Tạo user không phải root để chạy ứng dụng
-RUN addgroup -S spring && adduser -S spring -G spring
-USER spring:spring
+RUN groupadd spring && useradd -r -g spring spring
+USER spring
 # Mở cổng 8080 để truy cập ứng dụng
 EXPOSE 8080
 # Chạy ứng dụng
