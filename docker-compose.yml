@@ -1,5 +1,6 @@
 services:
 
+  # Database PostgreSQL
   db:
     container_name: db
     image: postgres
@@ -7,24 +8,28 @@ services:
     ports:
       - "5432:5432"
     environment:
-      POSTGRES_PASSWORD: example
+      POSTGRES_USER: ${POSTGRES_USER}      # Lấy từ file .env
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD} # Lấy từ file .env
+      POSTGRES_DB: ${POSTGRES_DB_NAME}     # Lấy từ file .env
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U postgres"]
       interval: 10s
       timeout: 5s
       retries: 5
+    volumes:
+      - pg_data: /var/lib/postgresql/data # Mount volume để lưu trữ dữ liệu PostgreSQL
+    networks:
+      - app-network
 
+  # Backend Spring Boot Application
   app:
-    container_name: app
-    image: thaihx/be-last-dance
+    container_name: last-dance-backend
+    image: thaihx/be-last-dance:latest
+    restart: always
     ports:
       - "8080:8080"
-    environment:
-      - "POSTGRES_DB_SERVER_ADDRESS=localhost"
-      - "POSTGRES_DB_SERVER_PORT=5432"
-      - "POSTGRES_DB_NAME=last_dance"
-      - "POSTGRES_USER=web_user"
-      - "POSTGRES_PASSWORD=iTelecom@123"
+    env_file:
+      - .env
     healthcheck:
       test: "curl --fail --silent localhost:8080/actuator/health/readiness | grep UP || exit 1"
       interval: 2s
@@ -34,3 +39,15 @@ services:
     depends_on:
       db:
         condition: service_healthy
+    networks:
+      - app-network
+
+# Định nghĩa Volume để lưu dữ liệu bền vững
+volumes:
+  pg_data:
+  minio_data:
+
+# Định nghĩa mạng nội bộ để các container gọi nhau bằng tên service
+networks:
+  app-network:
+    driver: bridge

@@ -6,21 +6,17 @@ import com.hoxuanthai.be.lastdance.dto.response.PageResponse;
 import com.hoxuanthai.be.lastdance.dto.UserDto;
 import com.hoxuanthai.be.lastdance.security.service.UserService;
 import com.hoxuanthai.be.lastdance.service.DeviceService;
-import com.sun.security.auth.UserPrincipal;
 import io.swagger.v3.oas.annotations.Operation;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
-import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.time.LocalDateTime;
 import java.util.List;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-
 
 @RestController
 @RequiredArgsConstructor
@@ -35,8 +31,7 @@ public class UserController {
     public ResponseEntity<BaseResponse<PageResponse<UserDto>>> getAllUsers(
             @RequestParam(required = false, defaultValue = "0") Integer page,
             @RequestParam(required = false, defaultValue = "10") Integer size,
-            @RequestParam(required = false, defaultValue = "id") String sortBy
-    ) {
+            @RequestParam(required = false, defaultValue = "id") String sortBy) {
         Page<UserDto> usersPage = userService.getAllUsers(page, size, sortBy);
 
         PageResponse<UserDto> pageResponse = PageResponse.<UserDto>builder()
@@ -66,7 +61,6 @@ public class UserController {
     public ResponseEntity<BaseResponse<UserDto>> getProfile(Authentication authentication) {
         return BaseResponse.success(userService.getUserDetailByUsername(authentication.getName()));
     }
-    
 
     @GetMapping("/user/{id}/devices")
     @Operation(tags = "User Service", description = "Get all devices registered to the user.")
@@ -82,8 +76,7 @@ public class UserController {
     @PreAuthorize("hasRole('USER')")
     @Operation(tags = "User Service", description = "Update user information.")
     public ResponseEntity<BaseResponse<UserDto>> updateUserInfo(
-            @RequestBody UserDto userDto
-    ) {
+            @RequestBody UserDto userDto) {
         UserDto result = userService.updateUserInfo(userDto);
         return BaseResponse.success(result);
     }
@@ -93,8 +86,7 @@ public class UserController {
     public ResponseEntity<BaseResponse<String>> changePassword(
             @RequestParam String oldPassword,
             @RequestParam String newPassword,
-            @PathVariable Long id
-    ) {
+            @PathVariable Long id) {
         userService.changePassword(id, oldPassword, newPassword);
         return BaseResponse.success(null, "Password updated successfully.");
     }
@@ -106,8 +98,7 @@ public class UserController {
             @RequestParam("startDate") LocalDateTime startDate,
             @RequestParam(value = "endDate", required = false) LocalDateTime endDate,
             @PathVariable Long userId,
-            @PathVariable String deviceUuid
-    ) {
+            @PathVariable String deviceUuid) {
         if (endDate != null) {
             endDate = startDate;
         }
@@ -121,5 +112,16 @@ public class UserController {
     public ResponseEntity<BaseResponse<String>> deleteUserById(@PathVariable Long id) {
         userService.deleteUserById(id);
         return BaseResponse.success(null, "User deleted successfully.");
+    }
+
+    @PostMapping("/user/avatar")
+    @PreAuthorize("hasRole('USER')")
+    @Operation(tags = "User Service", description = "Upload user avatar.")
+    public ResponseEntity<BaseResponse<String>> uploadAvatar(
+            @RequestParam("file") MultipartFile file,
+            Authentication authentication) {
+        UserDto authenticatedUser = userService.getUserDetailByUsername(authentication.getName());
+        String avatarUrl = userService.uploadAvatar(authenticatedUser.getId(), file);
+        return BaseResponse.success(avatarUrl, "Avatar uploaded successfully.");
     }
 }

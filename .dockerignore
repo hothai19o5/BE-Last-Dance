@@ -1,0 +1,10 @@
+.git
+.mvn
+target
+.idea
+.vscode
+*.class
+.env
+logs
+.github
+.gitignore

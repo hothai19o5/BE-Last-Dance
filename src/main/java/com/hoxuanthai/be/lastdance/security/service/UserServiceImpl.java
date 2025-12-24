@@ -10,6 +10,7 @@ import com.hoxuanthai.be.lastdance.security.dto.AuthenticatedUserDto;
 import com.hoxuanthai.be.lastdance.security.dto.RegistrationRequest;
 import com.hoxuanthai.be.lastdance.security.dto.RegistrationResponse;
 import com.hoxuanthai.be.lastdance.security.mapper.UserMapper;
+import com.hoxuanthai.be.lastdance.service.S3StorageService;
 import com.hoxuanthai.be.lastdance.service.UserValidationService;
 import com.hoxuanthai.be.lastdance.utils.GeneralMessageAccessor;
 import jakarta.transaction.Transactional;
@@ -39,6 +40,8 @@ public class UserServiceImpl implements UserService {
 
 	private final UserMapper userMapper;
 
+	private final S3StorageService s3StorageService;
+
 	@Override
 	public User findByUsername(String username) {
 
@@ -46,10 +49,9 @@ public class UserServiceImpl implements UserService {
 	}
 
 	/**
-	 * Registers a new user in the system.
-	 * 
-	 * @param registrationRequest the registration request containing user details
-	 * @return RegistrationResponse containing success message
+	 * Đăng ký người dùng mới.
+	 * @param registrationRequest yêu cầu đăng ký người dùng
+	 * @return RegistrationResponse phản hồi đăng ký người dùng
 	 */
 	@Override
 	@Transactional
@@ -73,11 +75,11 @@ public class UserServiceImpl implements UserService {
 	}
 
 	/**
-	 * Finds an authenticated user by their username.
+	 * Tìm người dùng đã xác thực theo tên người dùng.
 	 * 
-	 * @param username the username of the user to find
-	 * @return AuthenticatedUserDto containing user details
-	 * @throws RuntimeException if no user is found with the given username
+	 * @param username tên người dùng
+	 * @return AuthenticatedUserDto chứa thông tin người dùng đã xác thực
+	 * @throws RuntimeException nếu không tìm thấy người dùng với tên đã cho
 	 */
 	@Override
 	public AuthenticatedUserDto findAuthenticatedUserByUsername(String username) {
@@ -88,12 +90,12 @@ public class UserServiceImpl implements UserService {
 	}
 
 	/**
-	 * Retrieves a paginated list of all users along with their associated devices.
+	 * Lấy tất cả người dùng với phân trang và sắp xếp, bao gồm cả thiết bị liên
 	 * 
-	 * @param page   the page number to retrieve
-	 * @param size   the number of users per page
-	 * @param sortBy the field to sort the users by
-	 * @return Page of UserDto containing user details and associated devices
+	 * @param page   số trang hiện tại
+	 * @param size   kích thước trang
+	 * @param sortBy trường để sắp xếp
+	 * @return Page<UserDto> trang chứa danh sách UserDto
 	 */
 	@Override
 	public Page<UserDto> getAllUsers(int page, int size, String sortBy) {
@@ -102,11 +104,11 @@ public class UserServiceImpl implements UserService {
 	}
 
 	/**
-	 * Retrieves a user by their ID along with associated devices.
+	 * Lấy thông tin chi tiết người dùng theo ID, bao gồm cả thiết bị liên
 	 * 
-	 * @param userId the ID of the user to retrieve
-	 * @return UserDto containing user details and associated devices
-	 * @throws RuntimeException if no user is found with the given ID
+	 * @param userId ID của người dùng
+	 * @return UserDto thông tin chi tiết của người dùng
+	 * @throws RuntimeException nếu không tìm thấy người dùng với Id đã cho
 	 */
 	@Override
 	public UserDto getUserById(Long userId) {
@@ -185,6 +187,11 @@ public class UserServiceImpl implements UserService {
 				.build();
 	}
 
+	/**
+	 * Xóa người dùng bằng cách đánh dấu là đã xóa (soft delete).
+	 * @param id Id của người dùng cần xóa
+	 * @throws ResourceNotFoundException nếu không tìm thấy người dùng với Id đã cho
+	 */
 	@Override
 	@Transactional
 	public void deleteUserById(Long id) {
@@ -193,5 +200,23 @@ public class UserServiceImpl implements UserService {
 
 		user.setDeleted(true);
 		userRepository.save(user);
+	}
+
+	/**
+	 * Tải lên ảnh đại diện cho người dùng.
+	 * @param userId Id của người dùng
+	 * @param avatarFile tệp ảnh đại diện
+	 * @return URL của ảnh đại diện đã tải lên
+	 * @throws ResourceNotFoundException nếu không tìm thấy người dùng với Id đã cho
+	 */
+	@Override
+	@Transactional
+	public String uploadAvatar(Long userId, org.springframework.web.multipart.MultipartFile avatarFile) {
+		User user = userRepository.findById(userId)
+				.orElseThrow(() -> new ResourceNotFoundException("User not found with Id: " + userId));
+		String avatarUrl = s3StorageService.uploadAvatar(avatarFile, "avatars/" + userId + "/");
+		user.setProfilePictureUrl(avatarUrl);
+		userRepository.save(user);
+		return avatarUrl;
 	}
 }

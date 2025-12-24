@@ -1,6 +1,16 @@
+# Dùng image chứa Maven để build code
 FROM amazoncorretto:21.0.4-alpine3.18
-WORKDIR /app
-ARG JAR_FILE=target/*.jar
-COPY ${JAR_FILE} spring-boot-boilerplate.jar
+
+# Tạo thư mục làm việc trong container
+WORKDIR /last-dance-backend
+
+# Sao chép file JAR đã build từ máy host vào container
+COPY target/*.jar last-dance-backend.jar
+
+# Bảo mật
+RUN addgroup -S spring && adduser -S spring -G spring
+USER spring:spring
+
 EXPOSE 8080
-ENTRYPOINT ["java","-jar","spring-boot-boilerplate.jar"]
+
+ENTRYPOINT ["java","-jar","last-dance-backend.jar"]

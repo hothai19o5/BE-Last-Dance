@@ -54,7 +54,7 @@ public class User extends BaseEntity {
 	@Enumerated(EnumType.STRING)
 	private UserRole userRole;
 
-	@Column(name="profile_picture_url")
+	@Column(name="profile_picture_url", columnDefinition = "TEXT")
 	private String profilePictureUrl;
 
 	@Column(name="enabled", nullable = false)
