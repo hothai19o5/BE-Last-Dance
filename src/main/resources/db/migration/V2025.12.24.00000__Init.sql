@@ -6,8 +6,8 @@ CREATE EXTENSION IF NOT EXISTS timescaledb CASCADE;
 
 -- BẢNG USERS - Lưu trữ thông tin người dùng
 CREATE TABLE IF NOT EXISTS USERS (
-    id BIGSERIAL PRIMARY KEY,
-    username VARCHAR(255) UNIQUE NOT NULL,
+                                     id BIGSERIAL PRIMARY KEY,
+                                     username VARCHAR(255) UNIQUE NOT NULL,
     password VARCHAR(255) NOT NULL,
     email VARCHAR(255),
     first_name VARCHAR(255),
@@ -22,7 +22,7 @@ CREATE TABLE IF NOT EXISTS USERS (
     enabled BOOLEAN NOT NULL DEFAULT TRUE,
     created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
-);
+    );
 
 -- Index cho tìm kiếm nhanh theo username và email
 CREATE INDEX idx_users_username ON USERS(username);
@@ -31,15 +31,15 @@ CREATE INDEX idx_users_enabled ON USERS(enabled);
 
 -- BẢNG DEVICES - Lưu trữ thông tin thiết bị
 CREATE TABLE IF NOT EXISTS DEVICES (
-    id BIGSERIAL PRIMARY KEY,
-    device_uuid VARCHAR(255) UNIQUE NOT NULL,
+                                       id BIGSERIAL PRIMARY KEY,
+                                       device_uuid VARCHAR(255) UNIQUE NOT NULL,
     device_name VARCHAR(255) NOT NULL,
     is_active BOOLEAN NOT NULL DEFAULT TRUE,
     user_id BIGINT NOT NULL,
     created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
     CONSTRAINT fk_devices_user FOREIGN KEY (user_id) REFERENCES USERS(id) ON DELETE CASCADE
-);
+    );
 
 -- Index cho tìm kiếm nhanh theo device_uuid và user_id
 CREATE INDEX idx_devices_uuid ON DEVICES(device_uuid);
@@ -48,22 +48,22 @@ CREATE INDEX idx_devices_active ON DEVICES(is_active);
 
 -- BẢNG HEALTH_DATA - Lưu trữ dữ liệu sức khỏe
 CREATE TABLE IF NOT EXISTS HEALTH_DATA (
-    id BIGINT NOT NULL,
-    device_id BIGINT NOT NULL,
-    timestamp TIMESTAMP NOT NULL,
-    heart_rate INTEGER,
-    steps_count INTEGER,
-    spo2_percent DOUBLE PRECISION,
-    PRIMARY KEY (id, timestamp),
+                                           id BIGINT NOT NULL,
+                                           device_id BIGINT NOT NULL,
+                                           timestamp TIMESTAMP NOT NULL,
+                                           heart_rate INTEGER,
+                                           steps_count INTEGER,
+                                           spo2_percent DOUBLE PRECISION,
+                                           PRIMARY KEY (id, timestamp),
     CONSTRAINT fk_health_data_device FOREIGN KEY (device_id) REFERENCES DEVICES(id) ON DELETE CASCADE
-);
+    );
 
 -- Chuyển đổi bảng HEALTH_DATA thành hypertable với TimescaleDB
 -- Sử dụng timestamp làm time column để tối ưu cho time-series data
-SELECT create_hypertable('HEALTH_DATA', 'timestamp', 
-    chunk_time_interval => INTERVAL '1 day',
-    if_not_exists => TRUE
-);
+SELECT create_hypertable('HEALTH_DATA', 'timestamp',
+                         chunk_time_interval => INTERVAL '1 day',
+                         if_not_exists => TRUE
+       );
 
 -- Index cho tìm kiếm nhanh theo device_id và timestamp
 CREATE INDEX idx_health_data_device_id ON HEALTH_DATA(device_id, timestamp DESC);
@@ -73,7 +73,7 @@ CREATE INDEX idx_health_data_timestamp ON HEALTH_DATA(timestamp DESC);
 ALTER TABLE HEALTH_DATA SET (
     timescaledb.compress,
     timescaledb.compress_segmentby = 'device_id'
-);
+    );
 
 SELECT add_compression_policy('HEALTH_DATA', INTERVAL '7 days');
 
@@ -82,35 +82,35 @@ CREATE OR REPLACE FUNCTION update_updated_at_column()
 RETURNS TRIGGER AS $$
 BEGIN
     NEW.updated_at = CURRENT_TIMESTAMP;
-    RETURN NEW;
+RETURN NEW;
 END;
 $$ LANGUAGE plpgsql;
 
 -- Trigger cho bảng USERS
 CREATE TRIGGER update_users_updated_at
-BEFORE UPDATE ON USERS
-FOR EACH ROW
-EXECUTE FUNCTION update_updated_at_column();
+    BEFORE UPDATE ON USERS
+    FOR EACH ROW
+    EXECUTE FUNCTION update_updated_at_column();
 
 -- Trigger cho bảng DEVICES
 CREATE TRIGGER update_devices_updated_at
-BEFORE UPDATE ON DEVICES
-FOR EACH ROW
-EXECUTE FUNCTION update_updated_at_column();
+    BEFORE UPDATE ON DEVICES
+    FOR EACH ROW
+    EXECUTE FUNCTION update_updated_at_column();
 
 -- DỮ LIỆU MẪU: Tạo tài khoản ADMIN mặc định
 -- Password: Password@123 (đã được mã hóa bằng BCrypt)
 INSERT INTO USERS (username, password, email, first_name, last_name, user_role, enabled, deleted)
 VALUES (
-    'admin',
-    '$2a$10$EZyJ1ln5LH1Z7xV6E.K05ek7ObFZ9kdMKmfjm39NpAplFAlXJeyWG',
-    'admin@lastdance.com',
-    'Admin',
-    'System',
-    'ADMIN',
-    TRUE,
-    FALSE
-) ON CONFLICT (username) DO NOTHING;
+           'admin',
+           '$2a$10$EZyJ1ln5LH1Z7xV6E.K05ek7ObFZ9kdMKmfjm39NpAplFAlXJeyWG',
+           'admin@lastdance.com',
+           'Admin',
+           'System',
+           'ADMIN',
+           TRUE,
+           FALSE
+       ) ON CONFLICT (username) DO NOTHING;
 
 -- COMMENTS: Mô tả các bảng và cột
 COMMENT ON TABLE USERS IS 'Bảng lưu trữ thông tin người dùng hệ thống';
