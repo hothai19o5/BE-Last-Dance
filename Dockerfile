@@ -1,3 +1,5 @@
+# Stage 1: Build
+
 # Dùng image chứa Maven để build code
 FROM amazoncorretto:21.0.4-alpine3.18
 
@@ -14,3 +16,15 @@ USER spring:spring
 EXPOSE 8080
 
 ENTRYPOINT ["java","-jar","last-dance-backend.jar"]
+
+# Stage 2: Run
+
+FROM eclipse-temurin:21-jre
+
+WORKDIR /last-dance-backend
+
+COPY --from=build /last-dance-backend/target/*.jar last-dance-backend.jar
+
+EXPOSE 8080
+
+ENTRYPOINT ["java","-jar","app.jar"]

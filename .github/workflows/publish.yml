@@ -22,12 +22,7 @@ jobs:
           distribution: "temurin"
           java-version: "21"
 
-      # 3. Build Backend (Spring Boot)
-      - name: Build Spring Boot JAR (Maven)
-        run: mvn clean package -DskipTests
-        # Hoặc dùng gradle: ./gradlew clean build -x test
-
-      # 4. Build and Push Docker Image to Docker Hub
+      # 3. Build and Push Docker Image to Docker Hub
       - name: Log in to Docker Hub
         uses: docker/login-action@v2
         with:
@@ -41,7 +36,7 @@ jobs:
          push: true
          tags: ${{ secrets.DOCKER_USERNAME }}/be-last-dance:latest
 
-      # 5. Copy file docker-compose.yml từ Github sang Server
+      # 4. Copy file docker-compose.yml từ Github sang Server
       - name: Copy docker-compose to Server
         uses: appleboy/scp-action@v0.1.7
         with:
@@ -51,7 +46,7 @@ jobs:
          source: "docker-compose.yml"     # File trong repo Github
          target: "/opt/lastdance/"        # Thư mục trên Server (nơi chứa .env)
 
-      # 6. Connect SSH vào Server để chạy lệnh Docker Pull và Restart Container
+      # 5. Connect SSH vào Server để chạy lệnh Docker Pull và Restart Container
       - name: Deploy via SSH
         uses: appleboy/ssh-action@v1.0.3
         with:
@@ -70,7 +65,7 @@ jobs:
               # 3. Xóa các image cũ không dùng đến để giải phóng dung lượng
               docker images prune -f
 
-      # 7. Copy file từ GitHub Runner -> Server
+      # 6. Copy file từ GitHub Runner -> Server
 #      - name: Copy JAR to Droplet
 #        uses: appleboy/scp-action@v0.1.7
 #        with:
@@ -81,7 +76,7 @@ jobs:
 #          target: "/opt/lastdance/backend/" # Đẩy vào thư mục này ở Server
 #          strip_components: 1             # Quan trọng: Bỏ thư mục cha 'target', chỉ lấy file .jar
 
-      # 8. Connect SSH vào Server để đổi tên file và Restart ( Nếu sử dụng Systemd )
+      # 7. Connect SSH vào Server để đổi tên file và Restart ( Nếu sử dụng Systemd )
 #      - name: Restart Service via SSH
 #        uses: appleboy/ssh-action@v1.0.3
 #        with:
