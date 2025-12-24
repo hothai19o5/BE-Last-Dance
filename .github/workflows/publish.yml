@@ -57,13 +57,13 @@ jobs:
               cd /opt/lastdance/ # Vào thư mục chứa file docker-compose.yml
               
               # 1. Pull code mới về (nếu bạn để image name cố định là latest)
-              docker compose pull backend
+              docker compose pull
               
               # 2. Tái khởi động (Docker tự biết chỉ restart service backend)
               docker compose up -d --remove-orphans
               
               # 3. Xóa các image cũ không dùng đến để giải phóng dung lượng
-              docker images prune -f
+              docker image prune -f
 
       # 6. Copy file từ GitHub Runner -> Server
 #      - name: Copy JAR to Droplet
