@@ -37,13 +37,13 @@ jobs:
          tags: ${{ secrets.DOCKER_USERNAME }}/be-last-dance:latest
 
       # 4. Copy file docker-compose.yml từ Github sang Server
-      - name: Copy docker compose to Server
+      - name: Copy docker-compose to Server
         uses: appleboy/scp-action@v0.1.7
         with:
          host: ${{ secrets.DROPLET_IP }}
          username: ${{ secrets.DEPLOY_USER }}
          key: ${{ secrets.SSH_PRIVATE_KEY }}
-         source: "docker compose.yml"     # File trong repo Github
+         source: "docker-compose.yml"     # File trong repo Github
          target: "/opt/lastdance/"        # Thư mục trên Server (nơi chứa .env)
 
       # 5. Connect SSH vào Server để chạy lệnh Docker Pull và Restart Container
