@@ -100,7 +100,7 @@ EXECUTE FUNCTION update_updated_at_column();
 
 -- DỮ LIỆU MẪU: Tạo tài khoản ADMIN mặc định
 -- Password: Password@123 (đã được mã hóa bằng BCrypt)
-INSERT INTO USERS (username, password, email, first_name, last_name, user_role, enabled)
+INSERT INTO USERS (username, password, email, first_name, last_name, user_role, enabled, deleted)
 VALUES (
     'admin',
     '$2a$10$EZyJ1ln5LH1Z7xV6E.K05ek7ObFZ9kdMKmfjm39NpAplFAlXJeyWG',
@@ -108,7 +108,8 @@ VALUES (
     'Admin',
     'System',
     'ADMIN',
-    TRUE
+    TRUE,
+    FALSE
 ) ON CONFLICT (username) DO NOTHING;
 
 -- COMMENTS: Mô tả các bảng và cột

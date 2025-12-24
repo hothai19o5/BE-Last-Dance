@@ -3,7 +3,7 @@ services:
   # Database PostgreSQL
   db:
     container_name: db
-    image: postgres
+    image: timescale/timescaledb:2.14.2-pg16
     restart: always
     ports:
       - "5432:5432"
@@ -12,12 +12,12 @@ services:
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD} # Lấy từ file .env
       POSTGRES_DB: ${POSTGRES_DB_NAME}     # Lấy từ file .env
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      test: ["CMD-SHELL", "pg_isready -U $POSTGRES_USER"]
       interval: 10s
       timeout: 5s
       retries: 5
     volumes:
-      - pg_data: /var/lib/postgresql/data # Mount volume để lưu trữ dữ liệu PostgreSQL
+      - pg_data:/var/lib/postgresql # Mount volume để lưu trữ dữ liệu PostgreSQL
     networks:
       - app-network
 
@@ -41,11 +41,12 @@ services:
         condition: service_healthy
     networks:
       - app-network
+    volumes:
+      - ./logs:/last-dance-backend/logs  # Mount thư mục logs để lưu log ứng dụng
 
 # Định nghĩa Volume để lưu dữ liệu bền vững
 volumes:
   pg_data:
-  minio_data:
 
 # Định nghĩa mạng nội bộ để các container gọi nhau bằng tên service
 networks:
