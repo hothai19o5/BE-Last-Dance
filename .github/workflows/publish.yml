@@ -46,54 +46,54 @@ jobs:
          source: "docker-compose.yml"     # File trong repo Github
          target: "/opt/lastdance/"        # Thư mục trên Server (nơi chứa .env)
 
-      # 5. Connect SSH vào Server để chạy lệnh Docker Pull và Restart Container
-      - name: Deploy via SSH
-        uses: appleboy/ssh-action@v1.0.3
-        with:
-            host: ${{ secrets.DROPLET_IP }}
-            username: ${{ secrets.DEPLOY_USER }}
-            key: ${{ secrets.SSH_PRIVATE_KEY }}
-            script: |
-              cd /opt/lastdance/ # Vào thư mục chứa file docker-compose.yml
+      # # 5. Connect SSH vào Server để chạy lệnh Docker Pull và Restart Container
+      # - name: Deploy via SSH
+      #   uses: appleboy/ssh-action@v1.0.3
+      #   with:
+      #       host: ${{ secrets.DROPLET_IP }}
+      #       username: ${{ secrets.DEPLOY_USER }}
+      #       key: ${{ secrets.SSH_PRIVATE_KEY }}
+      #       script: |
+      #         cd /opt/lastdance/ # Vào thư mục chứa file docker-compose.yml
               
-              # 1. Pull code mới về (nếu bạn để image name cố định là latest)
-              docker compose pull
+      #         # 1. Pull code mới về (nếu bạn để image name cố định là latest)
+      #         docker compose pull
               
-              # 2. Tái khởi động (Docker tự biết chỉ restart service backend)
-              docker compose up -d --remove-orphans
+      #         # 2. Tái khởi động (Docker tự biết chỉ restart service backend)
+      #         docker compose up -d --remove-orphans
               
-              # 3. Xóa các image cũ không dùng đến để giải phóng dung lượng
-              docker image prune -f
+      #         # 3. Xóa các image cũ không dùng đến để giải phóng dung lượng
+      #         docker image prune -f
 
       # 6. Copy file từ GitHub Runner -> Server
-#      - name: Copy JAR to Droplet
-#        uses: appleboy/scp-action@v0.1.7
-#        with:
-#          host: ${{ secrets.DROPLET_IP }}
-#          username: ${{ secrets.DEPLOY_USER }}
-#          key: ${{ secrets.SSH_PRIVATE_KEY }}
-#          source: "target/*.jar"          # Lấy file trong thư mục target ở GitHub Runner
-#          target: "/opt/lastdance/backend/" # Đẩy vào thư mục này ở Server
-#          strip_components: 1             # Quan trọng: Bỏ thư mục cha 'target', chỉ lấy file .jar
+      - name: Copy JAR to Droplet
+        uses: appleboy/scp-action@v0.1.7
+        with:
+          host: ${{ secrets.DROPLET_IP }}
+          username: ${{ secrets.DEPLOY_USER }}
+          key: ${{ secrets.SSH_PRIVATE_KEY }}
+          source: "target/*.jar"          # Lấy file trong thư mục target ở GitHub Runner
+          target: "/opt/lastdance/backend/" # Đẩy vào thư mục này ở Server
+          strip_components: 1             # Quan trọng: Bỏ thư mục cha 'target', chỉ lấy file .jar
 
       # 7. Connect SSH vào Server để đổi tên file và Restart ( Nếu sử dụng Systemd )
-#      - name: Restart Service via SSH
-#        uses: appleboy/ssh-action@v1.0.3
-#        with:
-#          host: ${{ secrets.DROPLET_IP }}
-#          username: ${{ secrets.DEPLOY_USER }}
-#          key: ${{ secrets.SSH_PRIVATE_KEY }}
-#          script: |
-#            echo "Starting remote deployment script..."
-#
-#            # Vì SCP ở bước trên copy file giữ nguyên tên gốc (vd: app-0.0.1.jar)
-#            # Ta cần đổi tên nó về be-last-dance.jar để service chạy đúng file
-#            # Lưu ý: Lệnh này sẽ ghi đè file cũ
-#            mv /opt/lastdance/backend/*.jar /opt/lastdance/backend/be-last-dance.jar
-#
-#            # Restart Service
-#            echo "Restarting Systemd Service..."
-#            sudo systemctl restart backend.service
-#
-#            # Check status (Nếu fail sẽ báo lỗi pipeline)
-#            sudo systemctl status backend.service --no-pager
+      - name: Restart Service via SSH
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: ${{ secrets.DROPLET_IP }}
+          username: ${{ secrets.DEPLOY_USER }}
+          key: ${{ secrets.SSH_PRIVATE_KEY }}
+          script: |
+            echo "Starting remote deployment script..."
+
+            # Vì SCP ở bước trên copy file giữ nguyên tên gốc (vd: app-0.0.1.jar)
+            # Ta cần đổi tên nó về be-last-dance.jar để service chạy đúng file
+            # Lưu ý: Lệnh này sẽ ghi đè file cũ
+            mv /opt/lastdance/backend/*.jar /opt/lastdance/backend/be-last-dance.jar
+
+            # Restart Service
+            echo "Restarting Systemd Service..."
+            sudo systemctl restart backend.service
+
+            # Check status (Nếu fail sẽ báo lỗi pipeline)
+            sudo systemctl status backend.service --no-pager

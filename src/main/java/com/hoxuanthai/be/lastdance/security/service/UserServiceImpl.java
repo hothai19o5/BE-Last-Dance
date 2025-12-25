@@ -22,6 +22,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 
 @Slf4j
 @Service
@@ -211,7 +212,7 @@ public class UserServiceImpl implements UserService {
 	 */
 	@Override
 	@Transactional
-	public String uploadAvatar(Long userId, org.springframework.web.multipart.MultipartFile avatarFile) {
+	public String uploadAvatar(Long userId, MultipartFile avatarFile) {
 		User user = userRepository.findById(userId)
 				.orElseThrow(() -> new ResourceNotFoundException("User not found with Id: " + userId));
 		String avatarUrl = s3StorageService.uploadAvatar(avatarFile, "avatars/" + userId + "/");
