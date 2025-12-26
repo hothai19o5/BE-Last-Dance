@@ -4,6 +4,7 @@ import jakarta.persistence.*;
 import lombok.*;
 
 import java.time.LocalDateTime;
+import java.util.UUID;
 
 @Entity
 @Getter
@@ -16,7 +17,8 @@ import java.time.LocalDateTime;
 public class HealthData {
 
     @Id
-    private Long id;
+    @GeneratedValue
+    private UUID id;
 
     @Id
     private LocalDateTime timestamp;

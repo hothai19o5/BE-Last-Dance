@@ -50,7 +50,7 @@ CREATE INDEX IF NOT EXISTS idx_devices_active ON DEVICES(is_active);
 
 -- BẢNG HEALTH_DATA - Lưu trữ dữ liệu sức khỏe
 CREATE TABLE IF NOT EXISTS HEALTH_DATA (
-                                           id BIGINT NOT NULL,
+                                           id UUID NOT NULL DEFAULT gen_random_uuid(),
                                            device_id BIGINT NOT NULL,
                                            timestamp TIMESTAMP NOT NULL,
                                            heart_rate INTEGER,
