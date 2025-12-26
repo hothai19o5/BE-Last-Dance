@@ -24,6 +24,7 @@ import org.springframework.stereotype.Service;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
 
 @Slf4j
 @Service
@@ -111,6 +112,7 @@ public class DeviceServiceImpl implements DeviceService {
         List<HealthData> healthDataList = new ArrayList<>();
         for (DataPoint datapoint : healthDataDto.getDataPoints()) {
             HealthData healthData = HealthData.builder()
+                    .id(UUID.randomUUID()) // Generate a new UUID for each health data entry
                     .device(device)
                     .timestamp(datapoint.getTimestamp())
                     .heartRate(datapoint.getHeartRate())
