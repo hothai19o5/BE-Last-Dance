@@ -2,14 +2,13 @@ package com.hoxuanthai.be.lastdance.service;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
-import org.springframework.web.multipart.MultipartFile;
-import software.amazon.awssdk.core.sync.RequestBody;
-import software.amazon.awssdk.services.s3.S3Client;
 import software.amazon.awssdk.services.s3.model.GetObjectRequest;
 import software.amazon.awssdk.services.s3.model.PutObjectRequest;
 import software.amazon.awssdk.services.s3.presigner.S3Presigner;
 import software.amazon.awssdk.services.s3.presigner.model.GetObjectPresignRequest;
 import software.amazon.awssdk.services.s3.presigner.model.PresignedGetObjectRequest;
+import software.amazon.awssdk.services.s3.presigner.model.PutObjectPresignRequest;
+import software.amazon.awssdk.services.s3.presigner.model.PresignedPutObjectRequest;
 
 import java.time.Duration;
 
@@ -17,34 +16,41 @@ import java.time.Duration;
 @RequiredArgsConstructor
 public class S3StorageService {
 
-    private final S3Client s3Client;
     private final S3Presigner s3Presigner;
 
     private final String bucketName = System.getenv("AWS_S3_BUCKET_NAME");
 
-    public String uploadAvatar(MultipartFile file, String username) {
+    /**
+     * Tạo presigned URL để upload avatar
+     * @param key S3 object key
+     * @return presigned URL để upload
+     */
+    public String generatePresignedUploadUrl(String key) {
         try {
-            String key = "avatars/" + username + "_" + System.currentTimeMillis() + ".jpg";
-
-            PutObjectRequest request = PutObjectRequest.builder()
+            PutObjectRequest putObjectRequest = PutObjectRequest.builder()
                     .bucket(bucketName)
                     .key(key)
-                    .contentType(file.getContentType())
-                    .cacheControl("public, max-age=31536000")
                     .build();
 
-            s3Client.putObject(
-                    request,
-                    RequestBody.fromBytes(file.getBytes())
-            );
+            PutObjectPresignRequest presignRequest = PutObjectPresignRequest.builder()
+                    .signatureDuration(Duration.ofMinutes(15)) // URL có hiệu lực trong 15 phút
+                    .putObjectRequest(putObjectRequest)
+                    .build();
 
-            return generatePresignedUrl(key);
+            PresignedPutObjectRequest presignedRequest = s3Presigner.presignPutObject(presignRequest);
+
+            return presignedRequest.url().toString();
 
         } catch (Exception e) {
-            throw new RuntimeException("Upload S3 failed", e);
+            throw new RuntimeException("Generate presigned upload URL failed", e);
         }
     }
 
+    /**
+     * Tạo presigned URL để download/view avatar
+     * @param key S3 object key
+     * @return presigned URL để download
+     */
     public String generatePresignedUrl(String key) {
         try {
             GetObjectRequest getObjectRequest = GetObjectRequest.builder()

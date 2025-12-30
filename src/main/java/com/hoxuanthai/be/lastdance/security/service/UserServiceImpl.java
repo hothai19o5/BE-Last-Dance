@@ -22,7 +22,6 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
-import org.springframework.web.multipart.MultipartFile;
 
 @Slf4j
 @Service
@@ -204,20 +203,17 @@ public class UserServiceImpl implements UserService {
 	}
 
 	/**
-	 * Tải lên ảnh đại diện cho người dùng.
-	 * @param userId Id của người dùng
-	 * @param avatarFile tệp ảnh đại diện
-	 * @return URL của ảnh đại diện đã tải lên
-	 * @throws ResourceNotFoundException nếu không tìm thấy người dùng với Id đã cho
+	 * Lấy URL được ký trước để tải lên avatar người dùng.
+	 * @param userId   Id của người dùng
+	 * @param fileName Tên tệp avatar
+	 * @return URL được ký trước để tải lên avatar
 	 */
 	@Override
-	@Transactional
-	public String uploadAvatar(Long userId, MultipartFile avatarFile) {
+	public String getPresignedUrlForAvatarUpload(Long userId, String fileName) {
 		User user = userRepository.findById(userId)
 				.orElseThrow(() -> new ResourceNotFoundException("User not found with Id: " + userId));
-		String avatarUrl = s3StorageService.uploadAvatar(avatarFile, "avatars/" + userId + "/");
-		user.setProfilePictureUrl(avatarUrl);
-		userRepository.save(user);
-		return avatarUrl;
+		String key = "avatars/" + user.getUsername() + "_" + System.currentTimeMillis() + "_" + fileName;
+		String presignedUrl = s3StorageService.generatePresignedUploadUrl(key);
+		return presignedUrl;
 	}
 }

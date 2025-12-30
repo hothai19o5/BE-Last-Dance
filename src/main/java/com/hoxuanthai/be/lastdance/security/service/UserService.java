@@ -31,5 +31,5 @@ public interface UserService {
 
 	void deleteUserById(Long id);
 
-	String uploadAvatar(Long userId, MultipartFile avatarFile);
+	String getPresignedUrlForAvatarUpload(Long userId, String fileName);
 }

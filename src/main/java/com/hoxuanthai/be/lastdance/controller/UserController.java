@@ -13,10 +13,12 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.multipart.MultipartFile;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+
 
 @RestController
 @RequiredArgsConstructor
@@ -114,14 +116,14 @@ public class UserController {
         return BaseResponse.success(null, "User deleted successfully.");
     }
 
-    @PostMapping("/user/avatar")
+    @PostMapping("/user/avatar/presigned-url")
     @PreAuthorize("hasRole('USER')")
-    @Operation(tags = "User Service", description = "Upload user avatar.")
-    public ResponseEntity<BaseResponse<String>> uploadAvatar(
-            @RequestParam("file") MultipartFile file,
+    @Operation(tags = "User Service", description = "Get presigned URL for avatar upload.")
+    public ResponseEntity<BaseResponse<String>> getPresignedUrlForAvatarUpload(
+            @RequestParam String fileName,
             Authentication authentication) {
         UserDto authenticatedUser = userService.getUserDetailByUsername(authentication.getName());
-        String avatarUrl = userService.uploadAvatar(authenticatedUser.getId(), file);
-        return BaseResponse.success(avatarUrl, "Avatar uploaded successfully.");
+        String avatarUrl = userService.getPresignedUrlForAvatarUpload(authenticatedUser.getId(), fileName);
+        return BaseResponse.success(avatarUrl, "Get presigned URL successfully.");
     }
 }
