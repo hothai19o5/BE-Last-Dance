@@ -78,7 +78,10 @@ public class UserController {
     @PreAuthorize("hasRole('USER')")
     @Operation(tags = "User Service", description = "Update user information.")
     public ResponseEntity<BaseResponse<UserDto>> updateUserInfo(
-            @RequestBody UserDto userDto) {
+            @RequestBody UserDto userDto,
+            Authentication authentication) {
+        UserDto authenticatedUser = userService.getUserDetailByUsername(authentication.getName());
+        userDto.setId(authenticatedUser.getId());
         UserDto result = userService.updateUserInfo(userDto);
         return BaseResponse.success(result);
     }

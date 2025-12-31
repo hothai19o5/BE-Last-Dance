@@ -7,7 +7,6 @@ import com.hoxuanthai.be.lastdance.security.dto.AuthenticatedUserDto;
 import com.hoxuanthai.be.lastdance.security.dto.RegistrationRequest;
 import com.hoxuanthai.be.lastdance.security.dto.RegistrationResponse;
 import org.springframework.data.domain.Page;
-import org.springframework.web.multipart.MultipartFile;
 
 public interface UserService {
 
