@@ -2,6 +2,7 @@ package com.hoxuanthai.be.lastdance.service;
 
 import com.hoxuanthai.be.lastdance.dto.DeviceDto;
 import com.hoxuanthai.be.lastdance.dto.HealthDataDto;
+import com.hoxuanthai.be.lastdance.dto.StatisticsDto;
 import com.hoxuanthai.be.lastdance.dto.response.DevicesStats;
 import org.springframework.data.domain.Page;
 
@@ -25,4 +26,6 @@ public interface DeviceService {
     DevicesStats getDevicesStats();
 
     void removeDevice(String deviceUuid);
+
+    StatisticsDto getHealthStatistics(String metric, String range);
 }

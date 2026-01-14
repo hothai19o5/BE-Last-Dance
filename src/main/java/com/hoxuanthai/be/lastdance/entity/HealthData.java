@@ -35,4 +35,16 @@ public class HealthData {
 
     @Column(name = "spo2_percent")
     private Double spo2Percent;
+
+    @Column(name = "calories_burned")
+    private Double caloriesBurned;
+
+    @Column(name = "water_intake_ml")
+    private Integer waterIntakeMl;
+
+    @Column(name = "activity_status")
+    private Integer activityStatus; // 0=sleeping, 1=resting, 2=walking, 3=running
+
+    @Column(name = "sleep_duration_minutes")
+    private Integer sleepDurationMinutes;
 }

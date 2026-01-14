@@ -11,7 +11,7 @@ import java.time.LocalDateTime;
 @NoArgsConstructor
 @AllArgsConstructor
 public class DataPoint {
-    
+
     @NotNull
     private LocalDateTime timestamp;
 
@@ -20,4 +20,14 @@ public class DataPoint {
     private Double spo2;
 
     private Integer stepCount;
+
+    private Double caloriesBurned;
+
+    private Integer waterIntakeMl;
+
+    private Integer activityStatus; // 0=sleeping, 1=resting, 2=walking, 3=running
+
+    private Integer sleepDurationMinutes;
+
+    private Double alertScore; // ML anomaly detection score (0.0-1.0), null if not available
 }

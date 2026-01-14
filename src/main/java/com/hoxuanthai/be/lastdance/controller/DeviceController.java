@@ -2,6 +2,7 @@ package com.hoxuanthai.be.lastdance.controller;
 
 import com.hoxuanthai.be.lastdance.dto.DeviceDto;
 import com.hoxuanthai.be.lastdance.dto.HealthDataDto;
+import com.hoxuanthai.be.lastdance.dto.StatisticsDto;
 import com.hoxuanthai.be.lastdance.dto.response.PageResponse;
 import com.hoxuanthai.be.lastdance.ratelimit.KeyType;
 import com.hoxuanthai.be.lastdance.ratelimit.RateLimit;
@@ -68,5 +69,14 @@ public class DeviceController {
     ResponseEntity<BaseResponse<String>> removeDevice(@PathVariable String deviceUuid) {
         deviceService.removeDevice(deviceUuid);
         return BaseResponse.success(null, "Device removed successfully!");
+    }
+
+    @GetMapping("/health-data/statistics")
+    @Operation(tags = "Device Service", description = "Get aggregated health statistics.")
+    ResponseEntity<BaseResponse<StatisticsDto>> getHealthStatistics(
+            @RequestParam String metric,
+            @RequestParam String range) {
+        StatisticsDto stats = deviceService.getHealthStatistics(metric, range);
+        return BaseResponse.success(stats);
     }
 }

@@ -48,17 +48,21 @@ CREATE INDEX IF NOT EXISTS idx_devices_uuid ON DEVICES(device_uuid);
 CREATE INDEX IF NOT EXISTS idx_devices_user_id ON DEVICES(user_id);
 CREATE INDEX IF NOT EXISTS idx_devices_active ON DEVICES(is_active);
 
--- BẢNG HEALTH_DATA - Lưu trữ dữ liệu sức khỏe
+-- BẢNG HEALTH_DATA - Lưu trữ dữ liệu sức khỏe (time-series data)
 CREATE TABLE IF NOT EXISTS HEALTH_DATA (
-                                           id UUID NOT NULL DEFAULT gen_random_uuid(),
-                                           device_id BIGINT NOT NULL,
-                                           timestamp TIMESTAMP NOT NULL,
-                                           heart_rate INTEGER,
-                                           steps_count INTEGER,
-                                           spo2_percent DOUBLE PRECISION,
-                                           PRIMARY KEY (id, timestamp),
+    id UUID NOT NULL DEFAULT gen_random_uuid(),
+    device_id BIGINT NOT NULL,
+    timestamp TIMESTAMP NOT NULL,
+    heart_rate INTEGER,
+    steps_count INTEGER,
+    spo2_percent DOUBLE PRECISION,
+    calories_burned DOUBLE PRECISION,
+    water_intake_ml INTEGER,
+    activity_status INTEGER CHECK (activity_status IN (0, 1, 2, 3)), -- 0=sleeping, 1=resting, 2=walking, 3=running
+    sleep_duration_minutes INTEGER,
+    PRIMARY KEY (id, timestamp),
     CONSTRAINT fk_health_data_device FOREIGN KEY (device_id) REFERENCES DEVICES(id) ON DELETE CASCADE
-    );
+);
 
 -- Chuyển đổi bảng HEALTH_DATA thành hypertable với TimescaleDB
 -- Sử dụng timestamp làm time column để tối ưu cho time-series data
@@ -70,12 +74,13 @@ SELECT create_hypertable('HEALTH_DATA', 'timestamp',
 -- Index cho tìm kiếm nhanh theo device_id và timestamp
 CREATE INDEX IF NOT EXISTS idx_health_data_device_id ON HEALTH_DATA(device_id, timestamp DESC);
 CREATE INDEX IF NOT EXISTS idx_health_data_timestamp ON HEALTH_DATA(timestamp DESC);
+CREATE INDEX IF NOT EXISTS idx_health_data_activity ON HEALTH_DATA(activity_status);
 
 -- Compression policy: Tự động nén dữ liệu cũ hơn 7 ngày
 ALTER TABLE HEALTH_DATA SET (
     timescaledb.compress,
     timescaledb.compress_segmentby = 'device_id'
-    );
+);
 
 SELECT add_compression_policy('HEALTH_DATA', INTERVAL '7 days');
 
@@ -114,6 +119,20 @@ VALUES (
            FALSE
        ) ON CONFLICT (username) DO NOTHING;
 
+-- DỮ LIỆU MẪU: Tạo tài khoản User mặc định
+-- Password: Password@123 (đã được mã hóa bằng BCrypt)
+INSERT INTO USERS (username, password, email, first_name, last_name, user_role, enabled, deleted)
+VALUES (
+           'user',
+           '$2a$10$EZyJ1ln5LH1Z7xV6E.K05ek7ObFZ9kdMKmfjm39NpAplFAlXJeyWG',
+           'user@lastdance.com',
+           'User',
+           'System',
+           'USER',
+           TRUE,
+           FALSE
+       ) ON CONFLICT (username) DO NOTHING;
+
 -- COMMENTS: Mô tả các bảng và cột
 COMMENT ON TABLE USERS IS 'Bảng lưu trữ thông tin người dùng hệ thống';
 COMMENT ON COLUMN USERS.username IS 'Tên đăng nhập (duy nhất)';
@@ -137,10 +156,14 @@ COMMENT ON COLUMN DEVICES.device_uuid IS 'Mã định danh duy nhất của thi�
 COMMENT ON COLUMN DEVICES.is_active IS 'Trạng thái hoạt động của thiết bị';
 COMMENT ON COLUMN DEVICES.deleted IS 'Đánh dấu thiết bị đã bị xóa';
 
-COMMENT ON TABLE HEALTH_DATA IS 'Bảng lưu trữ dữ liệu sức khỏe từ thiết bị';
+COMMENT ON TABLE HEALTH_DATA IS 'Bảng lưu trữ dữ liệu sức khỏe từ thiết bị (TimescaleDB hypertable)';
 COMMENT ON COLUMN HEALTH_DATA.heart_rate IS 'Nhịp tim (bpm)';
 COMMENT ON COLUMN HEALTH_DATA.steps_count IS 'Số bước chân';
 COMMENT ON COLUMN HEALTH_DATA.spo2_percent IS 'Nồng độ oxy trong máu (%)';
+COMMENT ON COLUMN HEALTH_DATA.calories_burned IS 'Lượng calo đã đốt cháy (kcal)';
+COMMENT ON COLUMN HEALTH_DATA.water_intake_ml IS 'Lượng nước uống (ml)';
+COMMENT ON COLUMN HEALTH_DATA.activity_status IS 'Trạng thái hoạt động: 0=sleeping, 1=resting, 2=walking, 3=running';
+COMMENT ON COLUMN HEALTH_DATA.sleep_duration_minutes IS 'Thời gian ngủ (phút)';
 COMMENT ON COLUMN HEALTH_DATA.timestamp IS 'Thời điểm ghi nhận dữ liệu';
 COMMENT ON COLUMN HEALTH_DATA.device_id IS 'Tham chiếu đến thiết bị trong bảng DEVICES';
 

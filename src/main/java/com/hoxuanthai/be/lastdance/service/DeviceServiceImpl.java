@@ -3,6 +3,7 @@ package com.hoxuanthai.be.lastdance.service;
 import com.hoxuanthai.be.lastdance.dto.DataPoint;
 import com.hoxuanthai.be.lastdance.dto.DeviceDto;
 import com.hoxuanthai.be.lastdance.dto.HealthDataDto;
+import com.hoxuanthai.be.lastdance.dto.StatisticsDto;
 import com.hoxuanthai.be.lastdance.dto.response.DevicesStats;
 import com.hoxuanthai.be.lastdance.exceptions.ResourceNotFoundException;
 import com.hoxuanthai.be.lastdance.mapper.DeviceMapper;
@@ -12,6 +13,8 @@ import com.hoxuanthai.be.lastdance.entity.User;
 import com.hoxuanthai.be.lastdance.repository.DeviceRepository;
 import com.hoxuanthai.be.lastdance.repository.HealthDataRepository;
 import com.hoxuanthai.be.lastdance.repository.UserRepository;
+import jakarta.persistence.EntityManager;
+import jakarta.persistence.Query;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -19,9 +22,12 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
@@ -38,6 +44,8 @@ public class DeviceServiceImpl implements DeviceService {
     private final HealthDataRepository healthDataRepository;
 
     private final DeviceMapper deviceMapper;
+
+    private final EntityManager entityManager;
 
     /**
      * Đăng ký một thiết bị mới cho người dùng.
@@ -118,6 +126,10 @@ public class DeviceServiceImpl implements DeviceService {
                     .heartRate(datapoint.getHeartRate())
                     .stepsCount(datapoint.getStepCount())
                     .spo2Percent(datapoint.getSpo2())
+                    .caloriesBurned(datapoint.getCaloriesBurned())
+                    .waterIntakeMl(datapoint.getWaterIntakeMl())
+                    .activityStatus(datapoint.getActivityStatus())
+                    .sleepDurationMinutes(datapoint.getSleepDurationMinutes())
                     .build();
             healthDataList.add(healthData);
         }
@@ -152,6 +164,10 @@ public class DeviceServiceImpl implements DeviceService {
                     .heartRate(healthData.getHeartRate())
                     .stepCount(healthData.getStepsCount())
                     .spo2(healthData.getSpo2Percent())
+                    .caloriesBurned(healthData.getCaloriesBurned())
+                    .waterIntakeMl(healthData.getWaterIntakeMl())
+                    .activityStatus(healthData.getActivityStatus())
+                    .sleepDurationMinutes(healthData.getSleepDurationMinutes())
                     .build();
             dataPoints.add(dataPoint);
         }
@@ -201,5 +217,113 @@ public class DeviceServiceImpl implements DeviceService {
                 .orElseThrow(() -> new ResourceNotFoundException("Device with UUID " + deviceUuid + " not found"));
         device.setDeleted(true);
         deviceRepository.save(device);
+    }
+
+    @Override
+    public StatisticsDto getHealthStatistics(String metric, String range) {
+        // Get current authenticated user
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        String username = auth.getName();
+        User user = userRepository.findByUsername(username);
+        if (user == null) {
+            throw new ResourceNotFoundException("User not found");
+        }
+
+        // Determine time range and bucket interval
+        LocalDateTime endTime = LocalDateTime.now();
+        LocalDateTime startTime;
+        String bucketInterval;
+        DateTimeFormatter labelFormatter;
+
+        if ("day".equalsIgnoreCase(range)) {
+            startTime = endTime.minusHours(24);
+            bucketInterval = "1 hour";
+            labelFormatter = DateTimeFormatter.ofPattern("HH:mm");
+        } else { // week
+            startTime = endTime.minusDays(7);
+            bucketInterval = "1 day";
+            labelFormatter = DateTimeFormatter.ofPattern("MM/dd");
+        }
+
+        // Determine column name based on metric
+        String columnName = getColumnNameForMetric(metric);
+
+        // Build TimescaleDB time_bucket query
+        // Note: time_bucket requires INTERVAL type, so we cast the parameter explicitly
+        String sql = "SELECT " +
+                "time_bucket(CAST(:interval AS INTERVAL), timestamp) AS bucket, " +
+                "AVG(" + columnName + ") AS avg_value " +
+                "FROM health_data hd " +
+                "JOIN devices d ON hd.device_id = d.id " +
+                "WHERE d.user_id = :userId " +
+                "AND hd.timestamp >= :startTime " +
+                "AND hd.timestamp <= :endTime " +
+                "AND " + columnName + " IS NOT NULL " +
+                "GROUP BY bucket " +
+                "ORDER BY bucket ASC";
+
+        Query query = entityManager.createNativeQuery(sql);
+        query.setParameter("interval", bucketInterval);
+        query.setParameter("userId", user.getId());
+        query.setParameter("startTime", startTime);
+        query.setParameter("endTime", endTime);
+
+        @SuppressWarnings("unchecked")
+        List<Object[]> results = query.getResultList();
+
+        // Process results
+        List<StatisticsDto.ChartDataPoint> chartData = new ArrayList<>();
+        double sum = 0;
+        double max = Double.MIN_VALUE;
+        double min = Double.MAX_VALUE;
+        int count = 0;
+
+        for (Object[] row : results) {
+            LocalDateTime bucket = ((java.sql.Timestamp) row[0]).toLocalDateTime();
+            Double value = ((Number) row[1]).doubleValue();
+
+            chartData.add(StatisticsDto.ChartDataPoint.builder()
+                    .value(value)
+                    .label(bucket.format(labelFormatter))
+                    .build());
+
+            sum += value;
+            max = Math.max(max, value);
+            min = Math.min(min, value);
+            count++;
+        }
+
+        double average = count > 0 ? sum / count : 0;
+        double total = sum;
+
+        // If no data, set min/max to 0
+        if (count == 0) {
+            min = 0;
+            max = 0;
+        }
+
+        return StatisticsDto.builder()
+                .chartData(chartData)
+                .average(average)
+                .total(total)
+                .max(max)
+                .min(min)
+                .build();
+    }
+
+    /**
+     * Map metric parameter to database column name
+     */
+    private String getColumnNameForMetric(String metric) {
+        return switch (metric.toLowerCase()) {
+            case "calories" -> "calories_burned";
+            case "steps" -> "steps_count";
+            case "water" -> "water_intake_ml";
+            case "hr" -> "heart_rate";
+            case "spo2" -> "spo2_percent";
+            case "sleep" -> "sleep_duration_minutes";
+            case "weight" -> "weight_kg"; // Assuming weight is stored in health_data, otherwise needs different query
+            default -> throw new IllegalArgumentException("Unknown metric: " + metric);
+        };
     }
 }
