@@ -206,7 +206,7 @@ public class DeviceServiceImpl implements DeviceService {
     @Override
     public Page<DeviceDto> getAllDevices(int page, int size, String sortBy) {
         Pageable pageable = PageRequest.of(page, size, Sort.by(sortBy).ascending());
-        return deviceRepository.findAll(pageable).map(deviceMapper::toDto);
+        return deviceRepository.findAllNotDeleted(pageable).map(deviceMapper::toDto);
     }
 
     /**
@@ -217,7 +217,7 @@ public class DeviceServiceImpl implements DeviceService {
      */
     @Override
     public DevicesStats getDevicesStats() {
-        Long totalDevices = deviceRepository.count();
+        Long totalDevices = deviceRepository.countNotDeleted();
         Long activeDevices = deviceRepository.countActiveDevices();
         Long inactiveDevices = totalDevices - activeDevices;
 
@@ -343,5 +343,50 @@ public class DeviceServiceImpl implements DeviceService {
             case "weight" -> "weight_kg"; // Assuming weight is stored in health_data, otherwise needs different query
             default -> throw new IllegalArgumentException("Unknown metric: " + metric);
         };
+    }
+
+    /**
+     * Enable a device (set isActive to true)
+     * 
+     * @param deviceId ID of the device to enable
+     */
+    @Override
+    @Transactional
+    public void enableDevice(Long deviceId) {
+        Device device = deviceRepository.findById(deviceId)
+                .orElseThrow(() -> new ResourceNotFoundException("Device not found with ID: " + deviceId));
+        device.setActive(true);
+        deviceRepository.save(device);
+        log.info("Device with ID: {} has been enabled", deviceId);
+    }
+
+    /**
+     * Disable a device (set isActive to false)
+     * 
+     * @param deviceId ID of the device to disable
+     */
+    @Override
+    @Transactional
+    public void disableDevice(Long deviceId) {
+        Device device = deviceRepository.findById(deviceId)
+                .orElseThrow(() -> new ResourceNotFoundException("Device not found with ID: " + deviceId));
+        device.setActive(false);
+        deviceRepository.save(device);
+        log.info("Device with ID: {} has been disabled", deviceId);
+    }
+
+    /**
+     * Soft delete a device by ID (admin)
+     * 
+     * @param deviceId ID of the device to delete
+     */
+    @Override
+    @Transactional
+    public void deleteDeviceById(Long deviceId) {
+        Device device = deviceRepository.findById(deviceId)
+                .orElseThrow(() -> new ResourceNotFoundException("Device not found with ID: " + deviceId));
+        device.setDeleted(true);
+        deviceRepository.save(device);
+        log.info("Device with ID: {} has been soft deleted", deviceId);
     }
 }

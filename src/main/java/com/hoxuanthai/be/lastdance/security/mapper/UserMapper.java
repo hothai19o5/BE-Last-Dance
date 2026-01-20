@@ -16,7 +16,7 @@ import java.util.stream.Collectors;
 @Mapper(unmappedTargetPolicy = ReportingPolicy.IGNORE, componentModel = "spring")
 public interface UserMapper {
 
-	DeviceMapper deviceMapper  = Mappers.getMapper(DeviceMapper.class);
+	DeviceMapper deviceMapper = Mappers.getMapper(DeviceMapper.class);
 
 	UserMapper INSTANCE = Mappers.getMapper(UserMapper.class);
 
@@ -26,11 +26,20 @@ public interface UserMapper {
 
 	User convertToUser(AuthenticatedUserDto authenticatedUserDto);
 
-	@Mapping(target = "email")
+	/**
+	 * Map User to UserDto for admin list view (excludes sensitive data like email,
+	 * dob)
+	 */
+	@Mapping(target = "email", ignore = true)
+	@Mapping(target = "dob", ignore = true)
 	@Mapping(target = "devices", ignore = true)
 	@Mapping(target = "deviceIds", source = "devices", qualifiedByName = "mapDeviceIds")
 	UserDto toDto(User user);
 
+	/**
+	 * Map User to UserDto for detail view (still excludes email for privacy)
+	 */
+	@Mapping(target = "email", ignore = true)
 	@Mapping(target = "deviceIds", ignore = true)
 	@Mapping(target = "devices", source = "devices", qualifiedByName = "mapDevices")
 	UserDto toDetailDto(User user);

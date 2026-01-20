@@ -19,7 +19,6 @@ import java.util.List;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 
-
 @RestController
 @RequiredArgsConstructor
 public class UserController {
@@ -113,10 +112,26 @@ public class UserController {
 
     @DeleteMapping("/user/{id}")
     @PreAuthorize("hasRole('ADMIN')")
-    @Operation(tags = "User Service", description = "Admin delete user by id.")
+    @Operation(tags = "User Service", description = "Admin soft delete user by id.")
     public ResponseEntity<BaseResponse<String>> deleteUserById(@PathVariable Long id) {
         userService.deleteUserById(id);
         return BaseResponse.success(null, "User deleted successfully.");
+    }
+
+    @PatchMapping("/user/{id}/enable")
+    @PreAuthorize("hasRole('ADMIN')")
+    @Operation(tags = "User Service", description = "Admin enable user by id.")
+    public ResponseEntity<BaseResponse<String>> enableUser(@PathVariable Long id) {
+        userService.enableUser(id);
+        return BaseResponse.success(null, "User enabled successfully.");
+    }
+
+    @PatchMapping("/user/{id}/disable")
+    @PreAuthorize("hasRole('ADMIN')")
+    @Operation(tags = "User Service", description = "Admin disable user by id.")
+    public ResponseEntity<BaseResponse<String>> disableUser(@PathVariable Long id) {
+        userService.disableUser(id);
+        return BaseResponse.success(null, "User disabled successfully.");
     }
 
     @PostMapping("/user/avatar/presigned-url")

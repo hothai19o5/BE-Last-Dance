@@ -14,6 +14,7 @@ import lombok.RequiredArgsConstructor;
 
 import org.springframework.data.domain.Page;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -87,5 +88,29 @@ public class DeviceController {
             @RequestParam String range) {
         StatisticsDto stats = deviceService.getHealthStatistics(metric, range);
         return BaseResponse.success(stats);
+    }
+
+    @PatchMapping("/device/{id}/enable")
+    @PreAuthorize("hasRole('ADMIN')")
+    @Operation(tags = "Device Service", description = "Admin enable device by id.")
+    ResponseEntity<BaseResponse<String>> enableDevice(@PathVariable Long id) {
+        deviceService.enableDevice(id);
+        return BaseResponse.success(null, "Device enabled successfully!");
+    }
+
+    @PatchMapping("/device/{id}/disable")
+    @PreAuthorize("hasRole('ADMIN')")
+    @Operation(tags = "Device Service", description = "Admin disable device by id.")
+    ResponseEntity<BaseResponse<String>> disableDevice(@PathVariable Long id) {
+        deviceService.disableDevice(id);
+        return BaseResponse.success(null, "Device disabled successfully!");
+    }
+
+    @DeleteMapping("/device/{id}")
+    @PreAuthorize("hasRole('ADMIN')")
+    @Operation(tags = "Device Service", description = "Admin soft delete device by id.")
+    ResponseEntity<BaseResponse<String>> deleteDeviceById(@PathVariable Long id) {
+        deviceService.deleteDeviceById(id);
+        return BaseResponse.success(null, "Device deleted successfully!");
     }
 }

@@ -10,23 +10,22 @@ import java.util.Optional;
 
 public interface UserRepository extends JpaRepository<User, Long> {
 
-	@Query("SELECT u FROM User u LEFT JOIN FETCH u.devices WHERE u.username = ?1")
+	@Query("SELECT u FROM User u LEFT JOIN FETCH u.devices WHERE u.username = ?1 AND u.deleted = false")
 	User findByUsername(String username);
 
 	boolean existsByEmail(String email);
 
 	boolean existsByUsername(String username);
 
-	@Query("SELECT u FROM User u LEFT JOIN FETCH u.devices WHERE u.id = ?1 AND u.userRole = 'USER'")
+	@Query("SELECT u FROM User u LEFT JOIN FETCH u.devices WHERE u.id = ?1 AND u.userRole = 'USER' AND u.deleted = false")
 	Optional<User> findByIdWithDevices(Long id);
 
-	@Query(value = "SELECT DISTINCT u FROM User u LEFT JOIN FETCH u.devices WHERE u.userRole = 'USER'",
-		   countQuery = "SELECT COUNT(u) FROM User u WHERE u.userRole = 'USER'")
+	@Query(value = "SELECT DISTINCT u FROM User u LEFT JOIN FETCH u.devices WHERE u.userRole = 'USER' AND u.deleted = false", countQuery = "SELECT COUNT(u) FROM User u WHERE u.userRole = 'USER' AND u.deleted = false")
 	Page<User> findAllWithDevices(Pageable pageable);
 
-	@Query("SELECT COUNT(u.id) FROM User u WHERE u.userRole = 'USER'")
+	@Query("SELECT COUNT(u.id) FROM User u WHERE u.userRole = 'USER' AND u.deleted = false")
 	Long countUser();
 
-	@Query("SELECT COUNT(u.id) FROM User u WHERE u.userRole = 'USER' AND u.enabled = true")
+	@Query("SELECT COUNT(u.id) FROM User u WHERE u.userRole = 'USER' AND u.enabled = true AND u.deleted = false")
 	Long countUserActive();
 }

@@ -50,6 +50,7 @@ public class UserServiceImpl implements UserService {
 
 	/**
 	 * Đăng ký người dùng mới.
+	 * 
 	 * @param registrationRequest yêu cầu đăng ký người dùng
 	 * @return RegistrationResponse phản hồi đăng ký người dùng
 	 */
@@ -119,8 +120,10 @@ public class UserServiceImpl implements UserService {
 
 	/**
 	 * Lấy thông tin chi tiết bản thân.
+	 * 
 	 * @return Detail User Dto chứa thông tin chi tiết của người dùng
-	 * @throws ResourceNotFoundException nếu không tìm thấy người dùng với username đã cho
+	 * @throws ResourceNotFoundException nếu không tìm thấy người dùng với username
+	 *                                   đã cho
 	 */
 	@Override
 	public UserDto getUserDetailByUsername(String username) {
@@ -189,6 +192,7 @@ public class UserServiceImpl implements UserService {
 
 	/**
 	 * Xóa người dùng bằng cách đánh dấu là đã xóa (soft delete).
+	 * 
 	 * @param id Id của người dùng cần xóa
 	 * @throws ResourceNotFoundException nếu không tìm thấy người dùng với Id đã cho
 	 */
@@ -204,6 +208,7 @@ public class UserServiceImpl implements UserService {
 
 	/**
 	 * Lấy URL được ký trước để tải lên avatar người dùng.
+	 * 
 	 * @param userId   Id của người dùng
 	 * @param fileName Tên tệp avatar
 	 * @return URL được ký trước để tải lên avatar
@@ -215,5 +220,37 @@ public class UserServiceImpl implements UserService {
 		String key = "avatars/" + user.getUsername() + "_" + System.currentTimeMillis() + "_" + fileName;
 		String presignedUrl = s3StorageService.generatePresignedUploadUrl(key);
 		return presignedUrl;
+	}
+
+	/**
+	 * Enable a user account.
+	 * 
+	 * @param userId Id của người dùng cần enable
+	 * @throws ResourceNotFoundException nếu không tìm thấy người dùng với Id đã cho
+	 */
+	@Override
+	@Transactional
+	public void enableUser(Long userId) {
+		User user = userRepository.findById(userId)
+				.orElseThrow(() -> new ResourceNotFoundException("User not found with Id: " + userId));
+		user.setEnabled(true);
+		userRepository.save(user);
+		log.info("User with Id: {} has been enabled", userId);
+	}
+
+	/**
+	 * Disable a user account.
+	 * 
+	 * @param userId Id của người dùng cần disable
+	 * @throws ResourceNotFoundException nếu không tìm thấy người dùng với Id đã cho
+	 */
+	@Override
+	@Transactional
+	public void disableUser(Long userId) {
+		User user = userRepository.findById(userId)
+				.orElseThrow(() -> new ResourceNotFoundException("User not found with Id: " + userId));
+		user.setEnabled(false);
+		userRepository.save(user);
+		log.info("User with Id: {} has been disabled", userId);
 	}
 }

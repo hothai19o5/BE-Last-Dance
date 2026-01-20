@@ -33,4 +33,19 @@ public interface DeviceService {
     void removeDevice(String deviceUuid);
 
     StatisticsDto getHealthStatistics(String metric, String range);
+
+    /**
+     * Enable a device (set isActive to true)
+     */
+    void enableDevice(Long deviceId);
+
+    /**
+     * Disable a device (set isActive to false)
+     */
+    void disableDevice(Long deviceId);
+
+    /**
+     * Soft delete a device by ID (admin)
+     */
+    void deleteDeviceById(Long deviceId);
 }

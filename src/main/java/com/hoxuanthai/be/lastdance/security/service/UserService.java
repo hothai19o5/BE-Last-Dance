@@ -31,4 +31,14 @@ public interface UserService {
 	void deleteUserById(Long id);
 
 	String getPresignedUrlForAvatarUpload(Long userId, String fileName);
+
+	/**
+	 * Enable a user account
+	 */
+	void enableUser(Long userId);
+
+	/**
+	 * Disable a user account
+	 */
+	void disableUser(Long userId);
 }
