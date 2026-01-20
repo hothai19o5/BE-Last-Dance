@@ -101,6 +101,24 @@ public class DeviceServiceImpl implements DeviceService {
     }
 
     /**
+     * Lấy danh sách tất cả các thiết bị của người dùng hiện tại (dựa trên JWT
+     * token).
+     *
+     * @return Danh sách các đối tượng DeviceDto thuộc về người dùng hiện tại.
+     * @throws RuntimeException nếu không tìm thấy người dùng.
+     */
+    @Override
+    public List<DeviceDto> getMyDevices() {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        String username = authentication.getName();
+        User user = userRepository.findByUsername(username);
+        if (user == null) {
+            throw new RuntimeException("User not found");
+        }
+        return getAllDevicesByUserId(user.getId());
+    }
+
+    /**
      * Đồng bộ hóa dữ liệu sức khỏe từ một thiết bị.
      * Phương thức này nhận dữ liệu sức khỏe, tìm thiết bị tương ứng bằng UUID,
      * và lưu các điểm dữ liệu sức khỏe vào cơ sở dữ liệu.

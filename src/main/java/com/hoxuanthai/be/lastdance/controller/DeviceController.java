@@ -16,6 +16,8 @@ import org.springframework.data.domain.Page;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
+
 @RestController
 @RequiredArgsConstructor
 public class DeviceController {
@@ -40,6 +42,13 @@ public class DeviceController {
                 .last(devicePage.isLast())
                 .build();
         return BaseResponse.success(pageResponse);
+    }
+
+    @GetMapping("/device/my")
+    @Operation(tags = "Device Service", description = "Get all devices of the current authenticated user.")
+    ResponseEntity<BaseResponse<List<DeviceDto>>> getMyDevices() {
+        List<DeviceDto> devices = deviceService.getMyDevices();
+        return BaseResponse.success(devices);
     }
 
     @PostMapping("/device")

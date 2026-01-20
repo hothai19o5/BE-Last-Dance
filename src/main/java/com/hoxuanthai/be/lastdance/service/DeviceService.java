@@ -17,6 +17,11 @@ public interface DeviceService {
 
     List<DeviceDto> getAllDevicesByUserId(Long userId);
 
+    /**
+     * Get all devices of the current authenticated user
+     */
+    List<DeviceDto> getMyDevices();
+
     void syncHealthData(HealthDataDto healthDataDto);
 
     HealthDataDto getHealthData(Long userId, String deviceUuid, LocalDateTime startDate, LocalDateTime endDate);
